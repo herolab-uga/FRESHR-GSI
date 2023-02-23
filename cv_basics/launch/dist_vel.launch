@@ -1,0 +1,8 @@
+<launch>
+  <node
+    pkg="cv_basics"
+    type="dist_vel.py"
+    name="distance_velocity"
+    output="screen"
+  />
+</launch>

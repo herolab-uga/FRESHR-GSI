@@ -1,0 +1,8 @@
+<launch>
+  <node
+    pkg="cv_basics"
+    type="distance.py"
+    name="distance"
+    output="screen"
+  />
+</launch>
