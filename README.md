@@ -31,3 +31,10 @@ This package has three ROS nodes
   1) dist_vel.py : This node is just to collect the ground truth data from the gazebo simulations
   2) distance.py : This node is subscribing to the human skeleton keypoints and the camera depth data. Using these data it estimates the distance and velocity of each keypoints along with the confidence value. If the human is not in the viewable range, it will store NaN values on distance and velocity. Finally it will publish the distance, velocity and confidence of each keypoints in a separate array. Along with this it will also publish 1 in /human_detected topic if the human is detected at that instance otherwise it will print -1.
   3) compatibility_scale.py : This node subscribes to the distance, velocity, confidence topics and uses the below equation to calculate the GSI values.
+
+After starting the yolov7 open a new terminal and run the below command to estimate the distance and velocity of each keypoints
+
+```
+  roslaunch cv_basics distance.py
+```
+You need to make sure that you are subscribing to the right topic names in this file.
