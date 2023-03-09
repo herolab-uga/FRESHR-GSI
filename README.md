@@ -14,7 +14,7 @@ To use these packages you will have to install this package into your ROS worksp
 ```
   cd ~/catkin_ws
   cd src
-  git clone [https://github.com/herolab-uga/ros-network-analysis.git](https://github.com/herolab-uga/FRESHR-GSI.git)
+  git clone https://github.com/herolab-uga/FRESHR-GSI.git
   cd ../..
   catkin_make
   catkin_make install
