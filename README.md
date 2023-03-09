@@ -7,4 +7,4 @@ Below is the architecture of our framework.
 
 
 ## Pre-requisite
-This package is tested on ROS-noetic and it is assumed that ROS (noetic) is already installed in your system. This package uses Yolov7 for the human(s) pose estimation. You can download the yolov7 package from its official website. 
+This package is tested on [ROS (noetic)](http://wiki.ros.org/noetic/Installation/Ubuntu). We use [Yolov7](https://github.com/WongKinYiu/yolov7) to detect and localize the pixel locations of the human and robots (objects) from RGB images. For a human, it also provides the skeleton’s keypoint locations. These are then correlated with the corresponding depth values from depth images. Yolov7 also provides confidence scores of each detection, which are valuable when integrating different detections of the same factor, such as different skeletal keypoint distances.
