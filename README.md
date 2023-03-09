@@ -6,5 +6,5 @@ Below is the architecture of our framework.
 ![Alt text](/FRESHR/architecture.png?raw=true)
 
 
-##Pre-requisite
+## Pre-requisite
 This package is tested on ROS-noetic and it is assumed that ROS (noetic) is already installed in your system. This package uses Yolov7 for the human(s) pose estimation. You can download the yolov7 package from its official website. 
