@@ -19,3 +19,15 @@ To use these packages you will have to install this package into your ROS worksp
   catkin_make
   catkin_make install
 ```
+## Usage
+Yolov7 publishes the Human Skeleton Keypoints at higher rates which will force the FRESHR-GSI to publish same value multiple times. To control the publishing rate you can use [topic-tools](http://wiki.ros.org/topic_tools/throttle) to throttle the pose estimation messages at 1 Hz or use the below command directly (considering you are publishing the keypoints to rostopic /human_skeleton_keypoints) to publish it at 1 Hz.
+```
+  rosrun topic_tools throttle messages /human_skeleton_keypoints 1.0
+```
+
+Above command will publish your rostopic /your_rostopic_name to a new rostopic named as /your_rostopic_name_throttle. 
+
+This package has three ROS nodes
+  1) dist_vel.py : This node is just to collect the ground truth data from the gazebo simulations
+  2) distance.py : This node is subscribing to the human skeleton keypoints and the camera depth data. Using these data it estimates the distance and velocity of each keypoints along with the confidence value. If the human is not in the viewable range, it will store NaN values on distance and velocity. Finally it will publish the distance, velocity and confidence of each keypoints in a separate array. Along with this it will also publish 1 in /human_detected topic if the human is detected at that instance otherwise it will print -1.
+  3) compatibility_scale.py : This node subscribes to the distance, velocity, confidence topics and uses the below equation to calculate the GSI values.
