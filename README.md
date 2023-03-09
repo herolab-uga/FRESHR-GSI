@@ -8,3 +8,14 @@ Below is the architecture of our framework.
 
 ## Pre-requisite
 This package is tested on [ROS (noetic)](http://wiki.ros.org/noetic/Installation/Ubuntu). We use [Yolov7](https://github.com/WongKinYiu/yolov7) to detect and localize the pixel locations of the human and robots (objects) from RGB images. For a human, it also provides the skeleton’s keypoint locations. These are then correlated with the corresponding depth values from depth images. Yolov7 also provides confidence scores of each detection, which are valuable when integrating different detections of the same factor, such as different skeletal keypoint distances.
+
+## Installation
+To use these packages you will have to install this package into your ROS workspace. Make sure you install ROS Noetic and set up your ROS workspace as per the instructions at [http://wiki.ros.org/noetic/Installation/Ubuntu].  Below are the commands which will help you do that, considering you already have a catkin workspace.
+```
+  cd ~/catkin_ws
+  cd src
+  git clone [https://github.com/herolab-uga/ros-network-analysis.git](https://github.com/herolab-uga/FRESHR-GSI.git)
+  cd ../..
+  catkin_make
+  catkin_make install
+```
