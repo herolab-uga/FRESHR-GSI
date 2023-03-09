@@ -45,20 +45,20 @@ Then, use the below command to run the compatibility scale node.
 ```
 This node subscribes rostopics /distance /velocity and /confidence to supply you the below mentioned rostopics:
 
-  1> /Framework/distance_min :
-  2> /Framework/distance_max :
-  3> /Framework/distance_avg :
-  4> /Framework/distance_wtd :
-  5> /Framework/velocity_min :
-  6> /Framework/velocity_max :
-  7> /Framework/velocity_avg :
-  8> /Framework/velocity_wtd :
-  9> /Framework/distance_factor :
-  10> /Framework/velocity_factor :
-  11> /Framework/safety_value_dist :
-  12> /Framework/safety_value_vel : 
-  13> /Framework/safety_value_dist_wtd :
-  14> /Framework/safety_value_vel_wtd :
-  15> /Framework/safety_value_avg : 
-  16> /Framework/safety :
+  1) /Framework/distance_min :
+  2) /Framework/distance_max :
+  3) /Framework/distance_avg :
+  4) /Framework/distance_wtd :
+  5) /Framework/velocity_min :
+  6) /Framework/velocity_max :
+  7) /Framework/velocity_avg :
+  8) /Framework/velocity_wtd :
+  9) /Framework/distance_factor :
+  10) /Framework/velocity_factor :
+  11) /Framework/safety_value_dist :
+  12) /Framework/safety_value_vel : 
+  13) /Framework/safety_value_dist_wtd :
+  14) /Framework/safety_value_vel_wtd :
+  15) /Framework/safety_value_avg : 
+  16) /Framework/safety :
 
