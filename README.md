@@ -7,7 +7,15 @@ Below is the architecture of our framework.
 
 
 ## Pre-requisite
+Husky packages
+Yolov7
+
 This package is tested on [ROS (noetic)](http://wiki.ros.org/noetic/Installation/Ubuntu). We use [Yolov7](https://github.com/WongKinYiu/yolov7) to detect and localize the pixel locations of the human and robots (objects) from RGB images. For a human, it also provides the skeleton’s keypoint locations. These are then correlated with the corresponding depth values from depth images. Yolov7 also provides confidence scores of each detection, which are valuable when integrating different detections of the same factor, such as different skeletal keypoint distances.
+
+
+## Setup
+gazebo -- launch and world files
+yolov7 - changes to third party code
 
 ## Installation
 To use these packages you will have to install this package into your ROS workspace. Make sure you install ROS Noetic and set up your ROS workspace as per the instructions at [http://wiki.ros.org/noetic/Installation/Ubuntu].  Below are the commands which will help you do that, considering you already have a catkin workspace.
@@ -19,7 +27,21 @@ To use these packages you will have to install this package into your ROS worksp
   catkin_make
   catkin_make install
 ```
-## Usage
+## ROS Nodes
+
+Yolov7 keypoint and bounding box extraction
+
+ground truth from gazebo
+
+Metric Estimator - distance and velocity
+
+GSI scale
+
+DI scale
+
+ZI scale
+## Test Examples
+
 Yolov7 publishes the Human Skeleton Keypoints at higher rates which will force the FRESHR-GSI to publish same value multiple times. To control the publishing rate you can use [topic-tools](http://wiki.ros.org/topic_tools/throttle) to throttle the pose estimation messages at 1 Hz or use the below command directly (considering you are publishing the keypoints to rostopic /human_skeleton_keypoints) to publish it at 1 Hz.
 ```
   rosrun topic_tools throttle messages /human_skeleton_keypoints 1.0
