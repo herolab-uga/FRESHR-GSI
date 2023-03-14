@@ -15,8 +15,8 @@ This package is tested on [ROS (noetic)](http://wiki.ros.org/noetic/Installation
 For experiments, we use husky in gazebo simulation mounted with intel realsense RGB-D camera. After installing [Husky Packages](http://wiki.ros.org/Robots/Husky), copy the gazebo world files to husky_gazebo/worlds folder and launch files to husky_gazebo/launch folder. These world files are to create human actors as per the cases, scenarios, and settings and launch files will help to launch those world files. Cases and scenarios are defined below:
 
   Cases :
-  1 : Using Interactive robot's camera data to provide safety level for Humans.
-  2 : Using external vision based system to provide safety level for Humans. This case will help humans to move around the environment more freely as the humans do not need to always remain in the viewable range of the interacting robots.
+  * 1 : Using Interactive robot's camera data to provide safety level for Humans.
+  * 2 : Using external vision based system to provide safety level for Humans. This case will help humans to move around the environment more freely as the humans do not need to always remain in the viewable range of the interacting robots.
   
   Scenarios :
   1) 1 : Only Robot is moving and Human is static.
