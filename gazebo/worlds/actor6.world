@@ -1,0 +1,164 @@
+<?xml version="1.0" ?>
+
+<sdf version="1.4">
+   <world name="default">
+      <include>
+         <uri>model://ground_plane</uri>
+      </include>
+      <!-- A global light source -->
+      <include>
+         <uri>model://sun</uri>
+      </include>
+      <actor name="actor4">
+         <skin>
+            <filename>moonwalk.dae</filename>
+            <scale>1.0</scale>
+         </skin>
+         <pose>0 0 0 0 0 0</pose>
+         <animation name="walking">
+            <filename>walk.dae</filename>
+            <scale>1.000000</scale>
+            <interpolate_x>true</interpolate_x>
+         </animation>
+         <script>
+            <loop>true</loop>
+            <delay_start>0.000000</delay_start>
+            <auto_start>true</auto_start>
+            <trajectory id="0" type="walking">
+               <waypoint>
+                  <time>0.000000</time>
+                  <pose>0.000000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+		<waypoint>
+                  <time>0.500000</time>
+                  <pose>0.250000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+		<waypoint>
+                  <time>1.000000</time>
+                  <pose>0.500000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+               <waypoint>
+                  <time>1.500000</time>
+                  <pose>0.750000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+		<waypoint>
+                  <time>2.000000</time>
+                  <pose>1.000000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+               <waypoint>
+                  <time>2.500000</time>
+                  <pose>1.250000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+		<waypoint>
+                  <time>3.000000</time>
+                  <pose>1.500000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+               <waypoint>
+                  <time>3.500000</time>
+                  <pose>1.750000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+		<waypoint>
+                  <time>4.000000</time>
+                  <pose>2.000000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+               <waypoint>
+                  <time>4.500000</time>
+                  <pose>2.250000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+		<waypoint>
+                  <time>5.000000</time>
+                  <pose>2.500000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+               <waypoint>
+                  <time>5.500000</time>
+                  <pose>2.750000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+		<waypoint>
+                  <time>6.000000</time>
+                  <pose>3.000000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+               <waypoint>
+                  <time>6.500000</time>
+                  <pose>3.250000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+		<waypoint>
+                  <time>7.000000</time>
+                  <pose>3.500000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+               <waypoint>
+                  <time>7.500000</time>
+                  <pose>3.750000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+		<waypoint>
+                  <time>8.000000</time>
+                  <pose>4.000000 0.000000 0.000000 0.000000 0.000000 0.000000</pose>
+               </waypoint>
+               <waypoint>
+                  <time>8.500000</time>
+                  <pose>3.750000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+		<waypoint>
+                  <time>9.000000</time>
+                  <pose>3.500000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+               <waypoint>
+                  <time>9.500000</time>
+                  <pose>3.250000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+		<waypoint>
+                  <time>10.000000</time>
+                  <pose>3.000000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+               <waypoint>
+                  <time>10.500000</time>
+                  <pose>2.750000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+		<waypoint>
+                  <time>11.000000</time>
+                  <pose>2.500000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+               <waypoint>
+                  <time>11.500000</time>
+                  <pose>2.250000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+		<waypoint>
+                  <time>12.000000</time>
+                  <pose>2.000000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+               <waypoint>
+                  <time>12.500000</time>
+                  <pose>1.750000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+		<waypoint>
+                  <time>13.000000</time>
+                  <pose>1.500000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+               <waypoint>
+                  <time>13.500000</time>
+                  <pose>1.250000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+		<waypoint>
+                  <time>14.000000</time>
+                  <pose>1.000000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+               <waypoint>
+                  <time>14.500000</time>
+                  <pose>0.750000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+		<waypoint>
+                  <time>15.000000</time>
+                  <pose>0.500000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+               <waypoint>
+                  <time>15.500000</time>
+                  <pose>0.250000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+		<waypoint>
+                  <time>16.000000</time>
+                  <pose>0.000000 0.000000 0.000000 0.000000 0.000000 3.142857</pose>
+               </waypoint>
+            </trajectory>
+         </script>     
+      </actor>
+   </world>
+</sdf>
