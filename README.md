@@ -7,15 +7,16 @@ Below is the architecture of our framework.
 
 
 ## Pre-requisite
-Husky packages [http://wiki.ros.org/Robots/Husky]
-Yolov7 [https://github.com/lukazso/yolov7-ros.git]
-
-This package is tested on [ROS (noetic)](http://wiki.ros.org/noetic/Installation/Ubuntu). We use [Yolov7](https://github.com/WongKinYiu/yolov7) to detect and localize the pixel locations of the human and robots (objects) from RGB images. For a human, it also provides the skeleton’s keypoint locations. These are then correlated with the corresponding depth values from depth images. Yolov7 also provides confidence scores of each detection, which are valuable when integrating different detections of the same factor, such as different skeletal keypoint distances.
+This package is tested on [ROS (noetic)](http://wiki.ros.org/noetic/Installation/Ubuntu). You can use this link to install ROS Noetic into your system [http://wiki.ros.org/noetic/Installation/Ubuntu]. We use [Husky](http://wiki.ros.org/Robots/Husky) in gazebo to do the experiments. To install Husky packages, follow the instruction using this link[http://wiki.ros.org/Robots/Husky]. And finally, we use [Yolov7](https://github.com/WongKinYiu/yolov7) to detect and localize the pixel locations of the human and robots (objects) from RGB images. For a human, it also provides the skeleton’s keypoint locations. These are then correlated with the corresponding depth values from depth images. Yolov7 also provides confidence scores of each detection, which are valuable when integrating different detections of the same factor, such as different skeletal keypoint distances. We have used [lukazso](https://github.com/lukazso/yolov7-ros.git) github repository and made some minor modification to extract the pixel locations with confidence. You can follow the instruction provided in this link [] to install yolov7 package in your ROS workspace.
 
 
 ## Setup
-gazebo -- launch and world files
-yolov7 - changes to third party code
+
+For experiments, we use husky in gazebo simulation mounted with intel realsense RGB-D camera. After installing [Husky Packages](http://wiki.ros.org/Robots/Husky), copy the gazebo world files to husky_gazebo/worlds folder and launch files to husky_gazebo/launch folder. These world files are to create human actors as per the cases and scenarios and launch files will help to launch those world files. Cases and scenarios are defined below:
+  1)
+
+
+As mentioned above for yolov7 we used third party github repo and made some minor changes so, after installing yolov7 copy the src folder files from this github to the installed yolov7-ros/src folder and do the same for launch files
 
 ## Installation
 To use these packages you will have to install this package into your ROS workspace. Make sure you install ROS Noetic and set up your ROS workspace as per the instructions at [http://wiki.ros.org/noetic/Installation/Ubuntu].  Below are the commands which will help you do that, considering you already have a catkin workspace.
