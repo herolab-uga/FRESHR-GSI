@@ -3,7 +3,7 @@ A new safety index for pHRI applications. It is an open-ended solution with modu
 
 Below is the architecture of our framework.
 
-![Alt text](/FRESHR/architecture.png?raw=true)
+![Alt text](/images/architecture.png?raw=true)
 
 
 ## Pre-requisite
