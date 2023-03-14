@@ -1,0 +1,8 @@
+<launch>
+  <node
+    pkg="yolov7_ros"
+    type="keypoint.py"
+    name="keypoint"
+    output="screen"
+  />
+</launch>
