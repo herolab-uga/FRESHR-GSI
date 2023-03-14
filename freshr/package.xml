@@ -1,13 +1,11 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>cv_basics</name>
+  <name>freshr</name>
   <version>0.0.0</version>
-  <description>The cv_basics package</description>
+  <description>The freshr package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
-  <!-- Example:  -->
-  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="pandey@todo.todo">pandey</maintainer>
+  <maintainer email="pranav.pandey@uga.edu">pandey</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -18,14 +16,12 @@
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
-  <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/cv_basics</url> -->
+
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
   <!-- Authors do not have to be maintainers, but could be -->
-  <!-- Example: -->
-  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+
 
 
   <!-- The *depend tags are used to specify dependencies -->

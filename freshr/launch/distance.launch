@@ -1,6 +1,6 @@
 <launch>
   <node
-    pkg="cv_basics"
+    pkg="freshr"
     type="distance.py"
     name="distance"
     output="screen"
