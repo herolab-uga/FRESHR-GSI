@@ -7,8 +7,8 @@ Below is the architecture of our framework.
 
 
 ## Pre-requisite
-Husky packages
-Yolov7
+Husky packages [http://wiki.ros.org/Robots/Husky]
+Yolov7 [https://github.com/lukazso/yolov7-ros.git]
 
 This package is tested on [ROS (noetic)](http://wiki.ros.org/noetic/Installation/Ubuntu). We use [Yolov7](https://github.com/WongKinYiu/yolov7) to detect and localize the pixel locations of the human and robots (objects) from RGB images. For a human, it also provides the skeleton’s keypoint locations. These are then correlated with the corresponding depth values from depth images. Yolov7 also provides confidence scores of each detection, which are valuable when integrating different detections of the same factor, such as different skeletal keypoint distances.
 
