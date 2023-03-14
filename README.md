@@ -3,14 +3,37 @@ A new safety index for pHRI applications. It is an open-ended solution with modu
 
 Below is the architecture of our framework.
 
-![Alt text](/FRESHR/architecture.png?raw=true)
+![Alt text](/images/architecture.png?raw=true)
 
 
 ## Pre-requisite
-This package is tested on [ROS (noetic)](http://wiki.ros.org/noetic/Installation/Ubuntu). We use [Yolov7](https://github.com/WongKinYiu/yolov7) to detect and localize the pixel locations of the human and robots (objects) from RGB images. For a human, it also provides the skeleton’s keypoint locations. These are then correlated with the corresponding depth values from depth images. Yolov7 also provides confidence scores of each detection, which are valuable when integrating different detections of the same factor, such as different skeletal keypoint distances.
+This package is tested on [ROS (noetic)](http://wiki.ros.org/noetic/Installation/Ubuntu). You can use this link to install ROS Noetic into your system [http://wiki.ros.org/noetic/Installation/Ubuntu]. We use [Husky](http://wiki.ros.org/Robots/Husky) in gazebo to do the experiments. To install Husky packages, follow the instruction using this link[http://wiki.ros.org/Robots/Husky]. And finally, we use [Yolov7](https://github.com/WongKinYiu/yolov7) to detect and localize the pixel locations of the human and robots (objects) from RGB images. For a human, it also provides the skeleton’s keypoint locations. These are then correlated with the corresponding depth values from depth images. Yolov7 also provides confidence scores of each detection, which are valuable when integrating different detections of the same factor, such as different skeletal keypoint distances. We have used [lukazso](https://github.com/lukazso/yolov7-ros.git) github repository and made some minor modification to extract the pixel locations with confidence. You can follow the instruction provided in this link [https://github.com/lukazso/yolov7-ros.git] to install yolov7 package in your ROS workspace.
+
+
+## Setup
+
+For experiments, we use husky in gazebo simulation mounted with intel realsense RGB-D camera. After installing [Husky Packages](http://wiki.ros.org/Robots/Husky), copy the gazebo world files to husky_gazebo/worlds folder and launch files to husky_gazebo/launch folder. These world files are to create human actors as per the cases, scenarios, and settings and launch files will help to launch those world files. Cases and scenarios are defined below:
+
+  Cases :
+  * 1 : Using Interactive robot's camera data to provide safety level for Humans.
+  * 2 : Using external vision based system to provide safety level for Humans. This case will help humans to move around the environment more freely as the humans do not need to always remain in the viewable range of the interacting robots.
+  
+  Scenarios :
+  * 1 : Only Robot is moving and Human is static.
+  * 2 : Only Human is moving and Robot is static.
+  * 3 : Both Robot and Human are moving with some velocity.
+  
+  Settings :
+  * 1 : Approaching trajectory is being followed. Human/Robot approaches towards each other and goes back to their origin.
+  * 2 : Horizontal trajectory is followed. Human/Robot crosses each other horizontally at a distance. Human might not remain in the viewable range of the interacting robot.
+  * 3 : Diagonal trajectory is followed. Human/Robot crosses each other diagonally. Human might not remain in the viewable range of the interacting robot.
+
+
+As mentioned above for yolov7 we used third party github repo and made some minor changes so, after installing yolov7 copy the yolov7-ros/src and yolov7-ros/launch files from this github to the installed yolov7-ros/src folder and yolov7-ros/launch folder respectively. These python files will publish human skeleton keypoint's pixel location along with confidence in /human_skeleton_keypoints rostopic and bounding box x-y location in /bboxes_array rostopic.
 
 ## Installation
-To use these packages you will have to install this package into your ROS workspace. Make sure you install ROS Noetic and set up your ROS workspace as per the instructions at [http://wiki.ros.org/noetic/Installation/Ubuntu].  Below are the commands which will help you do that, considering you already have a catkin workspace.
+
+After completing all the above steps and making sure everything is installed and working properly. Below are the commands which will help you install FRESHR-GSI at your catkin workspace.
 ```
   cd ~/catkin_ws
   cd src
@@ -19,7 +42,21 @@ To use these packages you will have to install this package into your ROS worksp
   catkin_make
   catkin_make install
 ```
-## Usage
+## ROS Nodes
+
+Yolov7 keypoint and bounding box extraction
+
+ground truth from gazebo
+
+Metric Estimator - distance and velocity
+
+GSI scale
+
+DI scale
+
+ZI scale
+## Test Examples
+
 Yolov7 publishes the Human Skeleton Keypoints at higher rates which will force the FRESHR-GSI to publish same value multiple times. To control the publishing rate you can use [topic-tools](http://wiki.ros.org/topic_tools/throttle) to throttle the pose estimation messages at 1 Hz or use the below command directly (considering you are publishing the keypoints to rostopic /human_skeleton_keypoints) to publish it at 1 Hz.
 ```
   rosrun topic_tools throttle messages /human_skeleton_keypoints 1.0
