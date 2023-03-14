@@ -19,14 +19,14 @@ For experiments, we use husky in gazebo simulation mounted with intel realsense 
   * 2 : Using external vision based system to provide safety level for Humans. This case will help humans to move around the environment more freely as the humans do not need to always remain in the viewable range of the interacting robots.
   
   Scenarios :
-  1) 1 : Only Robot is moving and Human is static.
-  2) 2 : Only Human is moving and Robot is static.
-  3) 3 : Both Robot and Human are moving with some velocity.
+  * 1 : Only Robot is moving and Human is static.
+  * 2 : Only Human is moving and Robot is static.
+  * 3 : Both Robot and Human are moving with some velocity.
   
   Settings :
-  1) 1 : Approaching trajectory is being followed. Human/Robot approaches towards each other and goes back to their origin.
-  2) 2 : Horizontal trajectory is followed. Human/Robot crosses each other horizontally at a distance. Human might not remain in the viewable range of the interacting robot.
-  3) 3 : Diagonal trajectory is followed. Human/Robot crosses each other diagonally. Human might not remain in the viewable range of the interacting robot.
+  * 1 : Approaching trajectory is being followed. Human/Robot approaches towards each other and goes back to their origin.
+  * 2 : Horizontal trajectory is followed. Human/Robot crosses each other horizontally at a distance. Human might not remain in the viewable range of the interacting robot.
+  * 3 : Diagonal trajectory is followed. Human/Robot crosses each other diagonally. Human might not remain in the viewable range of the interacting robot.
 
 
 As mentioned above for yolov7 we used third party github repo and made some minor changes so, after installing yolov7 copy the src folder files from this github to the installed yolov7-ros/src folder and do the same for launch files
