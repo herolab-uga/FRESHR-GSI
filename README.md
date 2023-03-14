@@ -29,10 +29,11 @@ For experiments, we use husky in gazebo simulation mounted with intel realsense 
   * 3 : Diagonal trajectory is followed. Human/Robot crosses each other diagonally. Human might not remain in the viewable range of the interacting robot.
 
 
-As mentioned above for yolov7 we used third party github repo and made some minor changes so, after installing yolov7 copy the src folder files from this github to the installed yolov7-ros/src folder and do the same for launch files
+As mentioned above for yolov7 we used third party github repo and made some minor changes so, after installing yolov7 copy the yolov7-ros/src and yolov7-ros/launch files from this github to the installed yolov7-ros/src folder and yolov7-ros/launch folder respectively. These python files will publish human skeleton keypoint's pixel location along with confidence in /human_skeleton_keypoints rostopic and bounding box x-y location in /bboxes_array rostopic.
 
 ## Installation
-To use these packages you will have to install this package into your ROS workspace. Make sure you install ROS Noetic and set up your ROS workspace as per the instructions at [http://wiki.ros.org/noetic/Installation/Ubuntu].  Below are the commands which will help you do that, considering you already have a catkin workspace.
+
+After completing all the above steps and making sure everything is installed and working properly. Below are the commands which will help you install FRESHR-GSI at your catkin workspace.
 ```
   cd ~/catkin_ws
   cd src
