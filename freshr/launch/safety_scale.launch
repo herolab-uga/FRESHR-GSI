@@ -1,0 +1,10 @@
+<launch>
+    <node pkg="freshr" type="GSI.py" name="safety_scale" output="screen">
+    <node pkg="freshr" type="DI.py" name="safety_scale" output="screen">
+    <node pkg="freshr" type="ZI.py" name="safety_scale" output="screen">
+
+
+    </node>
+</launch>
+
+

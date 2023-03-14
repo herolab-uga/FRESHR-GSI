@@ -1,8 +1,8 @@
 <launch>
   <node
     pkg="freshr"
-    type="distance.py"
-    name="distance"
+    type="metric_estimator.py"
+    name="metric_estimator"
     output="screen"
   />
 </launch>

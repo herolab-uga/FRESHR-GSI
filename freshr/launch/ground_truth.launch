@@ -1,8 +1,8 @@
 <launch>
   <node
     pkg="freshr"
-    type="dist_vel.py"
-    name="distance_velocity"
+    type="ground_truth.py"
+    name="ground_truth"
     output="screen"
   />
 </launch>
