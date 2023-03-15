@@ -84,41 +84,71 @@ GSI :
 
 DI :
   
-  DI is the Danger Index. We use this as one of our baseline for comparison. This is based on the paper [https://link.springer.com/article/10.1007/s10514-006-9009-4]. This node also subcribes to the same topic as GSI and provide us the Danger Index. Danger Index is opposite of GSI, which means that 0 means safe and 1 means unsafe, so we conver the scale for comparison by subtracting the DI value from 1.
+  DI is the Danger Index. We use this as one of our baseline for comparison. This is based on the paper [https://link.springer.com/article/10.1007/s10514-006-9009-4]. This node also subcribes to the same topic as GSI and provide us the Danger Index. Danger Index is opposite of GSI, which means that 0 means safe and 1 means unsafe, so we conver the scale for comparison by subtracting the DI value from 1. This node publishes the **/danger_index** topic.
 
 ZI :
   
-  ZI is zonal based index. This is based on paper [https://doi.org/10.48550/arXiv.2208.02010]. Here they have used an average speed of human and combined it with the distance. They have divided the region into three safety zones : **Red** means unsafe zone (< 0.5 m for comparison purpose), **Yellow** means Neutral zone (<2.25 m and >0.5 m for comparison purpose), and **Green** means safe zone (> 2.25 m for comparison purpose).
+  ZI is zonal based index. This is based on paper [https://doi.org/10.48550/arXiv.2208.02010]. Here they have used an average speed of human and combined it with the distance. They have divided the region into three safety zones : **Red** means unsafe zone (< 0.5 m for comparison purpose), **Yellow** means Neutral zone (<2.25 m and >0.5 m for comparison purpose), and **Green** means safe zone (> 2.25 m for comparison purpose). This node publishes the **/zonal_safety** topic.
   
 We have assumed values for few parameters that are fixed. As we will use Magni robot for real-world experiment and are using intel realsense camera we have kept Dmax (maximum distance beyond which everyone is safe) as 5 m. Dmin (minimum distance which should be breached by the robot at any cost) as 0.5 m. Vmax ( maximum velocity of the robot) as 2 m/s. Vmin (minimum velocity of the robot) as -2 m/s. amax (maximum acceleration of the robot) as 0.7 m/s^2.
 
 
-## Test Examples
+## Usage Examples
+
+First step to run this project is to start the gazebo simulation. You can run any setting of any case and scenario. For example, if you want to run case 1 and scenario 1 for all setting use the below command.
+
+```
+  roslaunch husky_gazebo case1_sc1.launch
+```
+
+or if you want to run case 1 scenario 2 for setting 1, use below command.
+
+```
+  roslaunch husky_gazebo case1_sc2_1.launch
+```
+Above command will start the gazebo and you can see a human actor and a husky in an empty world. Now, we will run the yolov7 to estimate the pose of the human actor. Use the below command in a new terminal to estimate the human skeleton keypoints which uses our modified file from yolov7-ros. **Note**, yolov7 needs graphics (cuda) to detect human keypoints so make sure you have cuda installed in your system.
+
+```
+  roslaunch yolov7_ros keypoint.launch
+```
 
 Yolov7 publishes the Human Skeleton Keypoints at higher rates which will force the FRESHR-GSI to publish same value multiple times. To control the publishing rate you can use [topic-tools](http://wiki.ros.org/topic_tools/throttle) to throttle the pose estimation messages at 1 Hz or use the below command directly (considering you are publishing the keypoints to rostopic /human_skeleton_keypoints) to publish it at 1 Hz.
+
 ```
   rosrun topic_tools throttle messages /human_skeleton_keypoints 1.0
 ```
 
-Above command will publish your rostopic /your_rostopic_name to a new rostopic named as /your_rostopic_name_throttle. 
-
-This package has three ROS nodes
-  1) dist_vel.py : This node is just to collect the ground truth data from the gazebo simulations
-  2) distance.py : This node is subscribing to the human skeleton keypoints and the camera depth data. Using these data it estimates the distance and velocity of each keypoints along with the confidence value. If the human is not in the viewable range, it will store NaN values on distance and velocity. Finally it will publish the distance, velocity and confidence of each keypoints in a separate array. Along with this it will also publish 1 in /human_detected topic if the human is detected at that instance otherwise it will print -1.
-  3) compatibility_scale.py : This node subscribes to the distance, velocity, confidence topics and uses the below equation to calculate the GSI values.
-
-After starting the yolov7 open a new terminal and run the below command to estimate the distance and velocity of each keypoints
+Before going any further just check if the rostopic **/human_skeleton_keypoints_throttle** is supplying the keypoints location at 1 HZ. After starting the yolov7 open a new terminal and run the below command to estimate the distance and velocity of each keypoints. For velocity, we have just calculated the change in distance over change in time.
 
 ```
-  roslaunch cv_basics distance.py
+  roslaunch freshr metric_estimator.launch
 ```
-You need to make sure that you are subscribing to the right topic names in this file. Run the "rostopic list" to make sure /distance /velocity and /confidence are being published. If not, then there might be some issue with the subscribing part.
 
-Then, use the below command to run the compatibility scale node.
-```
-  roslaunch cv_basics compatibility_scale.py
-```
-This node subscribes rostopics /distance /velocity and /confidence to supply you the below mentioned rostopics:
+Then, use the below command to run the all the scales at once.
 
-  
+```
+  roslaunch freshr safety_scale.launch
+```
+
+This file runs all three scale (GSI, DI, and ZI) at once and you can find the GSI, DI, and ZI related rostopics by doing the **rostopic list** 
+
+
+## Core contributors
+
+* **Pranav Pandey** - PhD student
+
+* **Dr.Ramviyas Parasuraman** - Principal Investigator
+
+
+## Heterogeneous Robotics (HeRoLab)
+
+Heterogeneous Robotics Research Lab (HeRoLab) of the University of Georgia.
+
+Please contact hero at uga . edu for any queries
+
+http://hero.uga.edu/
+
+<p align="center">
+<img src="http://hero.uga.edu/wp-content/uploads/2021/04/herolab_newlogo_whitebg.png" width="300">
+</p>
 
