@@ -45,19 +45,24 @@ After completing all the above steps and making sure everything is installed and
 ## ROS Nodes
 
 Yolov7 :
+  
   When interacting robot is using this framework, we can directly use the Yolov7 pose estimation to estimate the pose and extract the skeleton keypoints with confidence. But, if we plan to use external vision system to provide GSI value using the framework, we will need the simple object detection scripts to detect both the robot and human. So, we have keypoint.py and object_detect.py to detect the keypoints as well as robot. keypoint.py and object_detect.py files subscribes to the RGB image supllied from the camera and will publish **/human_skeleton_keypoints** and **/bboxes_array** respectively.
 
 Gazebo :
+  
   To test this FRESHR-GSI, we use Husky in gazebo simulations. We provided the world files for Human actors movement and launch files to launch the actors and husky in an empty world. Different launch files are present in gazebo/launch folder and each launch file belongs to specific case and scenario. For e.g. case1_sc1.launch is for all settings using case 1 and scenario 1 setup, case1_sc2_1.launch file is for setting 1 for scenario 2 using case 1 setup and so on. Similarly, for spawning the husky we have different launch files which will launch the husky at a scpecific location and especially for case 2 we need two husky to represent one as interacting and one as external agent observing the interaction between human and robot.
 
 Ground_truth : 
+  
   To compare FRESHR provided metrics with the ground truth, we have ground_truth.py file which subscribe to the **/gazebo/model_states** and calculate the ground truth distance between human and robot as well as the velocity of each model.
 
 Metric Estimator :
+  
   This node is to estimate the distance and velocity of each keypoint of a human skeleton provided by the yolo. This node subscribe to the **/human_skeleton_keypoints** and camera depth data to estimate the metrics for each pixel location present in the /human_skeleton_keypoints rostopic. If the human is not in the viewable range it will simply store NaN values in distance and velocity. This node also publishes **/distance**, **/velocity**, **/confidence** and **/human_detection**. **/confidence** stores the confidence of each keypoints detected and **/human_detection** stores 1 if the human is detected, otherwise -1 will be stored.
 
 
 GSI :
+  
   Generalizable Safety Index is generalizable in terms of safety metrics and the utility of this scale. GSI vlaues from 0 to 1, where 0 means unsafe and 1 means safe. GSI can be used for path planning and safely navigating through a crowded environment. It can be used by an operator or external agent to monitor the safety of the human during any HRI/HRC, and will also allow controlling the robot to provide more safety and comfort to the humans. Our initial focus is on the distance and velocity factors, as they are sufficient measures to determine safety given the large area of interaction space. However, in the future, such as in a human-robot collaboration scenario where the interaction area is smaller, more refined measurements need to be added to the framework for a holistic safety evaluation. These additional measures include relative acceleration of joints and physiological metrics (such as heartbeat or some form of human stress measurements). This node subscribe to **/distance**, **/velocity**, and **/confidence** from metric estimator and publishes below rostopics :
     
     - /Framework/distance_min : This topic provides the minimum distance among all the keypoint's distances estimated by the metric estimator.
@@ -78,9 +83,11 @@ GSI :
     - /Framework/safety : This topic converts the GSI value to human readable format by using 7-point Likert scale. If there is no human in the camera range, then it will publish "Nothing Detected or System Unavailable".
 
 DI :
+  
   DI is the Danger Index. We use this as one of our baseline for comparison. This is based on the paper [https://link.springer.com/article/10.1007/s10514-006-9009-4]. This node also subcribes to the same topic as GSI and provide us the Danger Index. Danger Index is opposite of GSI, which means that 0 means safe and 1 means unsafe, so we conver the scale for comparison by subtracting the DI value from 1.
 
 ZI :
+  
   ZI is zonal based index. This is based on paper [https://doi.org/10.48550/arXiv.2208.02010]. Here they have used an average speed of human and combined it with the distance. They have divided the region into three safety zones : **Red** means unsafe zone (< 0.5 m for comparison purpose), **Yellow** means Neutral zone (<2.25 m and >0.5 m for comparison purpose), and **Green** means safe zone (> 2.25 m for comparison purpose).
   
 We have assumed values for few parameters that are fixed. As we will use Magni robot for real-world experiment and are using intel realsense camera we have kept Dmax (maximum distance beyond which everyone is safe) as 5 m. Dmin (minimum distance which should be breached by the robot at any cost) as 0.5 m. Vmax ( maximum velocity of the robot) as 2 m/s. Vmin (minimum velocity of the robot) as -2 m/s. amax (maximum acceleration of the robot) as 0.7 m/s^2.
