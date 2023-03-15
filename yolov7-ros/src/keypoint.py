@@ -170,7 +170,7 @@ if __name__ == '__main__':
 	
 	rospy.init_node('yolo_classify', anonymous=True)
 	pub1 = rospy.Publisher('/human_skeleton_keypoints', Float64MultiArray, queue_size = 1)
-	pub3 = rospy.Publisher('/robot_keypoints', Float64MultiArray, queue_size = 1)
+	#pub3 = rospy.Publisher('/robot_keypoints', Float64MultiArray, queue_size = 1)
 	pub2 = rospy.Publisher('/bounding_box', Float64MultiArray, queue_size = 1)
 	#rospy.Subscriber('/realsense/color/image_raw', Image, color_image, queue_size = 1, buff_size = 16777216)
 	rospy.Subscriber('/realsense/depth/image_rect_raw',Image,depth_process)
