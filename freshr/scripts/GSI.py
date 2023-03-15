@@ -7,21 +7,21 @@ import numpy as np
 import math
 
 global safety, frame_distance, frame_velocity, safety_value, norm, index,conf_thr, conf, velocity, frame_conf, desired_keypoints
-desired_keypoints = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16] #rospy.get_param("desired_keypoints")
+desired_keypoints = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16] 
 velocity = []
 index = []
 conf = []
-conf_thr = rospy.get_param("conf_thr")
+conf_thr = 0.9
 frame_distance = [0.0]
 frame_velocity = [0.0]
 frame_conf = []
 safety_value = float('nan')
-dmax = rospy.get_param("dmax") # Start detecting the distance once dmax is breached.
-dmin = rospy.get_param("dmin") # minimum separation distance that has to be maintained during the operation.
-vmax = rospy.get_param("vmax")  # maximum speed of the robot is 2 m/s.
-amax = rospy.get_param("amax")  # maximum acceleration of the robot is 0.7 m/s^2.
-rt = vmax/amax # rt is the reaction time of the robot. It would take 1s for the robot with max speed and max acceleration to come to complete stop.
-safety = rospy.get_param("safety")
+dmax = 5 # Start detecting the distance once dmax is breached.
+dmin = 0.5 # minimum separation distance that has to be maintained during the operation.
+vmax = 2  # maximum speed of the robot is 2 m/s.
+amax = 0.7  # maximum acceleration of the robot is 0.7 m/s^2.
+rt = vmax/amax # rt is the reaction time of the robot. It would take rt seconds for the robot with max speed and max acceleration to come to complete stop.
+safety = "System Starting"
 prev_d = -1.0
 frame_dist_avg = 0
 frame_vel_avg = 0
@@ -70,8 +70,7 @@ def likert_scale(lp):
 		return "Safe"
 	elif lp == 9:
 		return "Nothing Detected or System Unavailable"
-	elif lp == 0:
-		return "Velocity not detected"
+
 
 
 
