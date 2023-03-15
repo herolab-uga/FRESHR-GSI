@@ -44,17 +44,24 @@ After completing all the above steps and making sure everything is installed and
 ```
 ## ROS Nodes
 
-Yolov7 keypoint and bounding box extraction
+Yolov7 :
+  When interacting robot is using this framework, we can directly use the Yolov7 pose estimation to estimate the pose and extract the skeleton keypoints with confidence. But, if we plan to use external vision system to provide GSI value using the framework, we will need the simple object detection scripts to detect both the robot and human. So, we have keypoint.py and object_detect.py to detect the keypoints as well as robot. keypoint.py and object_detect.py files subscribes to the RGB image supllied from the camera and will publish **/human_skeleton_keypoints** and **/bboxes_array** respectively.
 
-ground truth from gazebo
+Gazebo :
+  To test this FRESHR-GSI, we use Husky in gazebo simulations. We provided the world files for Human actors movement and launch files to launch the actors and husky in an empty world. Different launch files are present in gazebo/launch folder and each launch file belongs to specific case and scenario. For e.g. case1_sc1.launch is for all settings using case 1 and scenario 1 setup, case1_sc2_1.launch file is for setting 1 for scenario 2 using case 1 setup and so on. Similarly, for spawning the husky we have different launch files which will launch the husky at a scpecific location and especially for case 2 we need two husky to represent one as interacting and one as external agent observing the interaction between human and robot.
 
-Metric Estimator - distance and velocity
+Ground_truth : 
+  To compare FRESHR provided metrics with the ground truth, we have ground_truth.py file which subscribe to the **/gazebo/model_states** and calculate the ground truth distance between human and robot as well as the velocity of each model.
 
-GSI scale
+Metric Estimator :
+  This node is to estimate the distance and velocity of each keypoint of a human skeleton provided by the yolo. This node subscribe to the **/human_skeleton_keypoints** and camera depth data to estimate the metrics for each pixel location present in the /human_skeleton_keypoints rostopic. If the human is not in the viewable range it will simply store NaN values in distance and velocity. This node also publishes **/distance**, **/velocity**, **/confidence** and **/human_detection**. **/confidence** stores the confidence of each keypoints detected and **/human_detection** stores 1 if the human is detected, otherwise -1 will be stored.
 
-DI scale
 
-ZI scale
+GSI :
+
+DI :
+
+ZI :
 ## Test Examples
 
 Yolov7 publishes the Human Skeleton Keypoints at higher rates which will force the FRESHR-GSI to publish same value multiple times. To control the publishing rate you can use [topic-tools](http://wiki.ros.org/topic_tools/throttle) to throttle the pose estimation messages at 1 Hz or use the below command directly (considering you are publishing the keypoints to rostopic /human_skeleton_keypoints) to publish it at 1 Hz.
