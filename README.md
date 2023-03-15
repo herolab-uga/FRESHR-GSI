@@ -58,10 +58,34 @@ Metric Estimator :
 
 
 GSI :
+  Generalizable Safety Index is generalizable in terms of safety metrics and the utility of this scale. GSI vlaues from 0 to 1, where 0 means unsafe and 1 means safe. GSI can be used for path planning and safely navigating through a crowded environment. It can be used by an operator or external agent to monitor the safety of the human during any HRI/HRC, and will also allow controlling the robot to provide more safety and comfort to the humans. Our initial focus is on the distance and velocity factors, as they are sufficient measures to determine safety given the large area of interaction space. However, in the future, such as in a human-robot collaboration scenario where the interaction area is smaller, more refined measurements need to be added to the framework for a holistic safety evaluation. These additional measures include relative acceleration of joints and physiological metrics (such as heartbeat or some form of human stress measurements). This node subscribe to **/distance**, **/velocity**, and **/confidence** from metric estimator and publishes below rostopics :
+    
+    - /Framework/distance_min : This topic provides the minimum distance among all the keypoint's distances estimated by the metric estimator.
+    - /Framework/distance_max : This topic provides the maximum distance among all the keypoint's distances estimated by the metric estimator.
+    - /Framework/distance_avg : This topic provides the average distance among all the keypoint's distances estimated by the metric estimator.
+    - /Framework/distance_wtd : This topic provides the weighted distance among all the keypoint's distances estimated by the metric estimator. Weight is based on the confidence of each keypoint.
+    - /Framework/velocity_min : This topic provides the minimum velocity among all the keypoint's velocities estimated by the metric estimator.
+    - /Framework/velocity_max : This topic provides the maximum velocity among all the keypoint's velocities estimated by the metric estimator.
+    - /Framework/velocity_avg : This topic provides the average velocity among all the keypoint's velocities estimated by the metric estimator.
+    - /Framework/velocity_wtd : This topic provides the weighted velocity among all the keypoint's velocities estimated by the metric estimator. Weight is based on the confidence of each keypoint.
+    - /Framework/distance_factor : This topic publishes the distance factor using weighted distance.
+    - /Framework/velocity_factor : This topic publishes the velocity factor using weighted velocity.
+    - /Framework/safety_value_dist : This topic publishes the GSI value only based on distance factor, which means that the weight for distance factor is 1 for this topic.
+    - /Framework/safety_value_vel : This topic publishes the GSI value only based on velocity factor, which means that the weight for velocity factor is 1 for this topic. 
+    - /Framework/safety_value_dist_wtd : This topic publishes the GSI value based on distance and velocity factor, here the weights for distance factor is 0.75 and 0.25 for velocity factor.
+    - /Framework/safety_value_vel_wtd : This topic publishes the GSI value based on distance and velocity factor, here the weights for distance factor is 0.25 and 0.75 for velocity factor.
+    - /Framework/safety_value_avg : This topic publishes the GSI value based on distance and velocity factor, here the weight for distance factor and velocity factor is equal which is 0.5. 
+    - /Framework/safety : This topic converts the GSI value to human readable format by using 7-point Likert scale. If there is no human in the camera range, then it will publish "Nothing Detected or System Unavailable".
 
 DI :
+  DI is the Danger Index. We use this as one of our baseline for comparison. This is based on the paper [https://link.springer.com/article/10.1007/s10514-006-9009-4]. This node also subcribes to the same topic as GSI and provide us the Danger Index. Danger Index is opposite of GSI, which means that 0 means safe and 1 means unsafe, so we conver the scale for comparison by subtracting the DI value from 1.
 
 ZI :
+  ZI is zonal based index. This is based on paper [https://doi.org/10.48550/arXiv.2208.02010]. Here they have used an average speed of human and combined it with the distance. They have divided the region into three safety zones : **Red** means unsafe zone (< 0.5 m for comparison purpose), **Yellow** means Neutral zone (<2.25 m and >0.5 m for comparison purpose), and **Green** means safe zone (> 2.25 m for comparison purpose).
+  
+We have assumed values for few parameters that are fixed. As we will use Magni robot for real-world experiment and are using intel realsense camera we have kept Dmax (maximum distance beyond which everyone is safe) as 5 m. Dmin (minimum distance which should be breached by the robot at any cost) as 0.5 m. Vmax ( maximum velocity of the robot) as 2 m/s. Vmin (minimum velocity of the robot) as -2 m/s. amax (maximum acceleration of the robot) as 0.7 m/s^2.
+
+
 ## Test Examples
 
 Yolov7 publishes the Human Skeleton Keypoints at higher rates which will force the FRESHR-GSI to publish same value multiple times. To control the publishing rate you can use [topic-tools](http://wiki.ros.org/topic_tools/throttle) to throttle the pose estimation messages at 1 Hz or use the below command directly (considering you are publishing the keypoints to rostopic /human_skeleton_keypoints) to publish it at 1 Hz.
@@ -89,20 +113,5 @@ Then, use the below command to run the compatibility scale node.
 ```
 This node subscribes rostopics /distance /velocity and /confidence to supply you the below mentioned rostopics:
 
-  1) /Framework/distance_min :
-  2) /Framework/distance_max :
-  3) /Framework/distance_avg :
-  4) /Framework/distance_wtd :
-  5) /Framework/velocity_min :
-  6) /Framework/velocity_max :
-  7) /Framework/velocity_avg :
-  8) /Framework/velocity_wtd :
-  9) /Framework/distance_factor :
-  10) /Framework/velocity_factor :
-  11) /Framework/safety_value_dist :
-  12) /Framework/safety_value_vel : 
-  13) /Framework/safety_value_dist_wtd :
-  14) /Framework/safety_value_vel_wtd :
-  15) /Framework/safety_value_avg : 
-  16) /Framework/safety :
+  
 
