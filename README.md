@@ -1,5 +1,5 @@
-# phri-safety-index
-A new safety index for pHRI applications. It is an open-ended solution with modular addition of safety factors as per the application’s need. We develop an online (real-time) quantitative framework to measure the safety level of robots during an interactive task and evaluate the safety of humans. FRESHR is flexible in terms of the applicability of any safety scale and deployment at different endpoints from where safety can be observed. The framework uses a deep learning method for human(s) and robot(s) detection, and algebraic calculations using the detection data to extract the safety-related factors.
+# FRESHR-GSI
+We propose a new framework and safety scale for evaluating safety in human-robot interaction settings, where mobile robots share larger regions with human personnel. It is an open-ended solution with modular addition of safety factors as per the application’s need. We develop an online (real-time) quantitative framework to measure the safety level of robots during an interactive task and evaluate the safety of humans. FRESHR is flexible in terms of the applicability of any safety scale and deployment at different endpoints from where safety can be observed. The framework uses a deep learning method for human(s) and robot(s) detection, and algebraic calculations using the detection data to extract the safety-related factors.
 
 Below is the architecture of our framework.
 
@@ -133,22 +133,5 @@ Then, use the below command to run the all the scales at once.
 This file runs all three scale (GSI, DI, and ZI) at once and you can find the GSI, DI, and ZI related rostopics by doing the **rostopic list** 
 
 
-## Core contributors
 
-* **Pranav Pandey** - PhD student
-
-* **Dr.Ramviyas Parasuraman** - Principal Investigator
-
-
-## Heterogeneous Robotics (HeRoLab)
-
-Heterogeneous Robotics Research Lab (HeRoLab) of the University of Georgia.
-
-Please contact hero at uga . edu for any queries
-
-http://hero.uga.edu/
-
-<p align="center">
-<img src="http://hero.uga.edu/wp-content/uploads/2021/04/herolab_newlogo_whitebg.png" width="300">
-</p>
 
