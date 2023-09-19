@@ -1,282 +1,361 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import String, Float64MultiArray
+from std_msgs.msg import String, Float64MultiArray, ByteMultiArray
 from std_msgs.msg import Float64 
 import numpy as np
 import math
-
-global safety, frame_distance, frame_velocity, safety_value, norm, index,conf_thr, conf, velocity, frame_conf, desired_keypoints
-desired_keypoints = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16] 
-velocity = []
-index = []
-conf = []
-conf_thr = 0.9
-frame_distance = [0.0]
-frame_velocity = [0.0]
-frame_conf = []
-safety_value = float('nan')
-dmax = 5 # Start detecting the distance once dmax is breached.
-dmin = 0.5 # minimum separation distance that has to be maintained during the operation.
-vmax = 2  # maximum speed of the robot is 2 m/s.
-amax = 0.7  # maximum acceleration of the robot is 0.7 m/s^2.
-rt = vmax/amax # rt is the reaction time of the robot. It would take rt seconds for the robot with max speed and max acceleration to come to complete stop.
-safety = "System Starting"
-prev_d = -1.0
-frame_dist_avg = 0
-frame_vel_avg = 0
-frame_dist_wtd = 0
-frame_vel_wtd = 0
-frm_dist = Float64MultiArray()
-frm_vel = Float64MultiArray()
-frm_conf = Float64MultiArray()
-
-pub = rospy.Publisher('/Framework/safety', String, queue_size = 10)
-pub31 = rospy.Publisher('/Framework/safety_value_avg', Float64, queue_size = 10)
-pub32 = rospy.Publisher('/Framework/safety_value_dist', Float64, queue_size = 10)
-pub33 = rospy.Publisher('/Framework/safety_value_vel', Float64, queue_size = 10)
-pub34 = rospy.Publisher('/Framework/safety_value_dist_wtd', Float64, queue_size = 10)
-pub35 = rospy.Publisher('/Framework/safety_value_vel_wtd', Float64, queue_size = 10)
-pub11 = rospy.Publisher('/Framework/distance_min', Float64, queue_size = 10)
-pub12 = rospy.Publisher('/Framework/distance_max', Float64, queue_size = 10)
-pub13 = rospy.Publisher('/Framework/distance_avg', Float64, queue_size = 10)
-pub14 = rospy.Publisher('/Framework/distance_wtd', Float64, queue_size = 10)
-pub21 = rospy.Publisher('/Framework/velocity_min', Float64, queue_size = 10)
-pub22 = rospy.Publisher('/Framework/velocity_max', Float64, queue_size = 10)
-pub23 = rospy.Publisher('/Framework/velocity_avg', Float64, queue_size = 10)
-pub24 = rospy.Publisher('/Framework/velocity_wtd', Float64, queue_size = 10)
-vel_fact = rospy.Publisher('/Framework/velocity_factor', Float64, queue_size = 10)
-dist_fact = rospy.Publisher('/Framework/distance_factor', Float64, queue_size = 10)
-dist_arr = rospy.Publisher('/Framework/distance_array', Float64MultiArray, queue_size = 10)
-vel_arr = rospy.Publisher('/Framework/velocity_array', Float64MultiArray, queue_size = 10)
-conf_arr = rospy.Publisher('/Framework/confidence_array', Float64MultiArray, queue_size = 10)
-time_prev = 0
+import pyrealsense2 as rs
 
 
-def likert_scale(lp):
-	if lp == 1:
-		return "Unsafe"
-	elif lp == 2:
-		return "Mostly Unsafe"
-	elif lp == 3:
-		return "Slightly Unsafe"
-	elif lp == 4:
-		return "Neither Safe nor Unsafe (Neutral)"
-	elif lp == 5:
-		return "Slightly Safe"
-	elif lp == 6:
-		return "Mostly Safe"
-	elif lp == 7:
-		return "Safe"
-	elif lp == 9:
-		return "Nothing Detected or System Unavailable"
+class FRESHR_GSI:
+	def __init__(self, sub_topic1: str, sub_topic2: str, sub_topic3: str, safety_topic: str, dist_min_topic: str, dist_max_topic: str, dist_avg_topic: str, dist_wtd_topic: str, vel_min_topic: str, vel_max_topic: str, vel_avg_topic: str, vel_wtd_topic: str, gsi_avg_topic: str, gsi_dist_topic: str, gsi_vel_topic: str, gsi_dist_wtd_topic: str, gsi_vel_wtd_topic: str, d_factor_topic: str, v_factor_topic: str, dist_arr_topic: str, vel_arr_topic: str, conf_arr_topic: str, desired_keypoints: str, conf_thr: str, dmax: str, dmin: str, vmax: str, amax: str, dwt: str,vwt:str, queue_size: int = 10):
+		
+		self.desired_keypoints = list(desired_keypoints.split(","))
+		self.conf_thr = float(conf_thr)
+		self.dmax = float(dmax)
+		self.dmin = float(dmin)
+		self.vmax = float(vmax)
+		self.amax = float(amax)
+		self.rt = self.vmax/self.amax
+		self.velocity = []
+		self.conf = []
+		self.index = []
+		self.frame_distance = []
+		self.frame_velocity = []
+		self.frame_conf = []
+		self.safety_value = float('nan')
+		self.safety = "System Starting"
+		self.prev_d = -1.0
+		self.frame_dist_avg = 0
+		self.frame_vel_avg = 0
+		self.frame_dist_wtd = 0
+		self.frame_vel_wtd = 0
+		self.frm_dist = Float64MultiArray()
+		self.frm_vel = Float64MultiArray()
+		self.frm_conf = Float64MultiArray()
+		self.Likert_safety = ByteMultiArray()
+		self.time_prev = 0
+		self.dwt = float(dwt)
+		self.vwt = float(vwt)
+		
+		self.n_human_subscriber = rospy.Subscriber("/number_of_humans", Float64, self.n_humans)
+		self.velocity_subscriber = rospy.Subscriber('/velocity', Float64MultiArray, self.transform_callback2)
+		self.confidence_subscriber = rospy.Subscriber('/confidence', Float64MultiArray, self.transform_callback3)
+		self.distance_subscriber = rospy.Subscriber('/distance', Float64MultiArray, self.transform_callback1)
+		
+		self.pub = rospy.Publisher(safety_topic, String, queue_size = queue_size)
+		self.pub31 = rospy.Publisher(gsi_avg_topic, Float64, queue_size = queue_size)
+		self.pub32 = rospy.Publisher(gsi_dist_topic, Float64, queue_size = queue_size)
+		self.pub33 = rospy.Publisher(gsi_vel_topic, Float64, queue_size = queue_size)
+		self.pub34 = rospy.Publisher(gsi_dist_wtd_topic, Float64, queue_size = queue_size)
+		self.pub35 = rospy.Publisher(gsi_vel_wtd_topic, Float64, queue_size = queue_size)
+		self.pub11 = rospy.Publisher(dist_min_topic, Float64, queue_size = queue_size)
+		self.pub12 = rospy.Publisher(dist_max_topic, Float64, queue_size = queue_size)
+		self.pub13 = rospy.Publisher(dist_avg_topic, Float64, queue_size = queue_size)
+		self.pub14 = rospy.Publisher(dist_wtd_topic, Float64, queue_size = queue_size)
+		self.pub21 = rospy.Publisher(vel_min_topic, Float64, queue_size = queue_size)
+		self.pub22 = rospy.Publisher(vel_max_topic, Float64, queue_size = queue_size)
+		self.pub23 = rospy.Publisher(vel_avg_topic, Float64, queue_size = queue_size)
+		self.pub24 = rospy.Publisher(vel_wtd_topic, Float64, queue_size = queue_size)
+		self.vel_fact = rospy.Publisher(v_factor_topic, Float64, queue_size = queue_size)
+		self.dist_fact = rospy.Publisher(d_factor_topic, Float64, queue_size = queue_size)
+		self.dist_arr = rospy.Publisher(dist_arr_topic, Float64MultiArray, queue_size = queue_size)
+		self.vel_arr = rospy.Publisher(vel_arr_topic, Float64MultiArray, queue_size = queue_size)
+		self.conf_arr = rospy.Publisher(conf_arr_topic, Float64MultiArray, queue_size = queue_size)
+
+
+	def n_humans(self, data):
+		self.human_num = data.data
+		
+	def transform_callback3(self, data):		
+		self.conf = data.data
+		self.index = [ int(i) for i in self.desired_keypoints]
+    
+	def transform_callback2(self, data):
+		self.velocity = data.data
+
+	def transform_callback1(self, data):
+
+		norm = [0 for x in range(int(self.human_num))]
+		ex = 0.00000000000000000000000000000000000001
+		
+		if self.human_num > 0 :
+			distance_array = (np.array_split(data.data, self.human_num))
+			velocity_array = (np.array_split(self.velocity, self.human_num))
+			confidence_array = (np.array_split(self.conf, self.human_num))
+			#print(confidence_array)
+			#print(self.human_num)
+			new_index = [[] for x in range(int(self.human_num))]
+			dd1 = [[] for x in range(int(self.human_num))]
+			vv1 = [[] for x in range(int(self.human_num))]
+			cc1 = [[] for x in range(int(self.human_num))]
+			dd2 = [[] for x in range(int(self.human_num))]
+			vv2 = [[] for x in range(int(self.human_num))]
+			cc2 = [[] for x in range(int(self.human_num))]
+			keep_index1 = [[] for x in range(int(self.human_num))]
+			dd3 = [[] for x in range(int(self.human_num))]
+			vv3 = [[] for x in range(int(self.human_num))]
+			cc3 = [[] for x in range(int(self.human_num))]
+			keep_index2 = [[] for x in range(int(self.human_num))]
+				
+			for run in range(int(self.human_num)):
+				for li in self.index:
+					if float(confidence_array[run][li]) > self.conf_thr:
+						new_index[run].append(li)
+				
+				for i in new_index[run]:
+					dd1[run].append(distance_array[run][i])
+					vv1[run].append(velocity_array[run][i])
+					cc1[run].append(confidence_array[run][i])
+			
+				
+				keep_index1[run] = [i for i,xd in enumerate(dd1[run]) if math.isnan(xd) == False]
+				for i in keep_index1[run]:
+					dd2[run].append(dd1[run][i])
+					vv2[run].append(vv1[run][i])
+					cc2[run].append(cc1[run][i])
+			
+				
+				keep_index2[run] = [i for i,xv in enumerate(vv2[run]) if math.isnan(xv) == False]
+				for i in keep_index2[run]:
+					dd3[run].append(dd2[run][i])
+					vv3[run].append(vv2[run][i])
+					cc3[run].append(cc2[run][i])
+
+			self.frame_distance = dd3[:]
+			self.frame_velocity = vv3[:]
+			self.frame_conf = cc3[:]
+			
+			self.frame_dist_wtd = [float(0) for x in range(int(self.human_num))]
+			self.frame_dist_min = [float(0) for x in range(int(self.human_num))]
+			self.frame_dist_max = [float(0) for x in range(int(self.human_num))]
+			self.frame_vel_wtd = [float(0) for x in range(int(self.human_num))]
+			self.frame_vel_min = [float(0) for x in range(int(self.human_num))]
+			self.frame_vel_max = [float(0) for x in range(int(self.human_num))]
+			self.frame_dist_avg = [float(0) for x in range(int(self.human_num))]
+			self.frame_vel_avg = [float(0) for x in range(int(self.human_num))]
+			self.d = [float(0) for x in range(int(self.human_num))]
+			self.v = [float(0) for x in range(int(self.human_num))]
+			self.os_dist = [float(0) for x in range(int(self.human_num))]
+			self.os_vel = [float(0) for x in range(int(self.human_num))]
+			self.os_dist_wtd = [float(0) for x in range(int(self.human_num))]
+			self.os_vel_wtd = [float(0) for x in range(int(self.human_num))]
+			self.os_avg = [float(0) for x in range(int(self.human_num))]
+			self.safety = ["System Starting" for x in range(int(self.human_num))]
+
+			
+			for nh in range(int(self.human_num)):
+				#print(nh)
+				norm[nh] = sum(self.frame_conf[nh])
+				#print("norm :",norm)
+			
+				if len(self.frame_distance[nh]) != 0 :
+					self.frame_dist_avg[nh] = sum(self.frame_distance[nh])/len(self.frame_distance[nh])
+				if len(self.frame_velocity[nh]) != 0 :
+					self.frame_vel_avg[nh] = sum(self.frame_velocity[nh])/len(self.frame_velocity[nh])
+			
+				if norm[nh] != 0:
+					for i in range(len(self.frame_distance[nh])):
+						self.frame_dist_wtd[nh] = self.frame_dist_wtd[nh] + ((self.frame_conf[nh][i]*self.frame_distance[nh][i])/norm[nh])
+
+					for i in range(len(self.frame_velocity[nh])):
+						self.frame_vel_wtd[nh] = self.frame_vel_wtd[nh] + ((self.frame_conf[nh][i]*self.frame_velocity[nh][i])/norm[nh])
+
+				for i in range(len(self.frame_distance[nh])):
+					if norm[nh] != 0:
+						self.d[nh] = self.d[nh] +(self.frame_conf[nh][i]/norm[nh])*((self.frame_distance[nh][i]-self.dmin)/(self.dmax-self.dmin))
+					else:
+						self.d[nh] = float('nan')
+				if self.d[nh]>1 :
+					self.d[nh] = 1
+				elif self.d[nh]<0 :
+					self.d[nh] = 0
+
+				time_now = rospy.get_rostime().to_sec()
+
+				for i in range(len(self.frame_velocity[nh])):
+					if norm[nh] == 0.0:
+						self.v[nh] = float('nan')
+					elif self.frame_distance[nh][i] != float('nan') or self.frame_velocity[nh][i] != float('nan'):
+						allowedv = (self.frame_distance[nh][i])/self.rt
+						self.v[nh] = self.v[nh] + (self.frame_conf[nh][i]/(norm[nh]))*((allowedv - self.frame_velocity[nh][i])/(allowedv+ex))
+
+				self.frame_dist_min[nh] = min(self.frame_distance[nh], default=float('nan'))
+				self.frame_dist_max[nh] = max(self.frame_distance[nh], default=float('nan'))
+				self.frame_vel_min[nh] = min(self.frame_velocity[nh], default=float('nan'))
+				self.frame_vel_max[nh] = max(self.frame_velocity[nh], default=float('nan'))
+
+				if self.v[nh]<0:
+					self.v[nh] = 0
+				elif self.v[nh]>1:
+					self.v[nh] = 1
+
+				if len(self.frame_distance[nh]) == 0 or len(self.frame_velocity[nh]) == 0:
+					self.d[nh] = float('nan')
+					self.v[nh] = float('nan')
+
+				if self.d[nh] == float('nan') or self.v[nh] == float('nan'):
+					self.os_dist[nh] = float('nan')
+					self.os_vel[nh] = float('nan')
+					self.os_dist_wtd[nh] = float('nan')
+					self.os_vel_wtd[nh] = float('nan')
+					self.os_avg[nh] = float('nan')
+				else:
+					self.os_dist[nh] = float(self.d[nh])
+					self.os_vel[nh] = float(self.v[nh])
+					self.os_dist_wtd[nh] = float((0.75)*self.d[nh]+(0.25)*self.v[nh])
+					self.os_vel_wtd[nh] = float((0.25)*self.d[nh]+(0.75)*self.v[nh])
+					self.os_avg[nh] = float((0.5)*self.d[nh]+(0.5)*self.v[nh])
+					#self.os_avg[nh] = float((self.dwt)*self.d[nh]+(self.vwt)*self.v[nh])
 
 
 
+				if len(self.frame_distance[nh]) == 0 or self.os_avg[nh] == float('nan'):
+					self.safety[nh] = "Nothing Detected or System Unavailable"
+				elif self.os_avg[nh] < 0.1 :
+					self.safety[nh] = "Unsafe"
+				elif self.os_avg[nh] >= 0.1 and self.os_avg[nh] < 0.28 :
+					self.safety[nh] = "Mostly Unsafe"
+				elif self.os_avg[nh] >= 0.28 and self.os_avg[nh] < 0.45:
+					self.safety[nh] = "Slightly Unsafe"
+				elif self.os_avg[nh] >= 0.45 and self.os_avg[nh] < 0.55:
+					self.safety[nh] = "Neither Safe nor Unsafe (Neutral)"
+				elif self.os_avg[nh] > 0.55 and self.os_avg[nh] <= 0.73 :
+					self.safety[nh] = "Slightly Safe" 
+				elif self.os_avg[nh] > 0.73 and self.os_avg[nh] <= 0.9 :
+					self.safety[nh] = "Mostly Safe"
+				elif self.os_avg[nh] > 0.9 :
+					self.safety[nh] = "Safe"
 
-def transform_callback3(data):
-    global norm, conf_thr, conf, index, desired_keypoints
-    conf = data.data
-    index = desired_keypoints
-
+			self.safety=np.array(self.safety)
+			self.d=np.array(self.d,float)
+			self.v=np.array(self.v,float)
+			self.os_avg=np.array(self.os_avg,float)
+			self.os_dist=np.array(self.os_dist,float)
+			self.os_vel=np.array(self.os_vel,float)
+			self.os_dist_wtd=np.array(self.os_dist_wtd,float)
+			self.os_vel_wtd=np.array(self.os_vel_wtd,float)
+			self.frame_dist_min=np.array(self.frame_dist_min,float)
+			self.frame_dist_max=np.array(self.frame_dist_max,float)
+			self.frame_vel_min=np.array(self.frame_vel_min,float)
+			self.frame_vel_max=np.array(self.frame_vel_max,float)
+			self.frame_dist_avg=np.array(self.frame_dist_avg,float)
+			self.frame_dist_wtd=np.array(self.frame_dist_wtd,float)
+			self.frame_vel_avg=np.array(self.frame_vel_avg,float)
+			self.frame_vel_wtd=np.array(self.frame_vel_wtd,float)
+			self.frame_conf=np.array(self.frame_conf,float)
+			self.frame_distance=np.array(self.frame_velocity,float)
+			self.frame_velocity=np.array(self.frame_distance,float)
+			#print(self.safety)
+			#print(type(self.safety))
+			print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+			print('current distance :',self.frame_dist_avg,'m distance factor :',self.d)
+			#print('confidence :',self.frame_conf)
+			print('current velocity :',self.frame_vel_avg,'m/s velocity factor :',self.v)
+			print('GSI :',self.os_avg)
+			#print('avg vs wtd :',self.frame_dist_avg,self.frame_dist_wtd)
+			print(self.safety)
+			print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+			
+			self.time_prev = time_now
+			self.frm_dist.data = self.frame_distance
+			self.frm_vel.data = self.frame_velocity
+			self.frm_conf.data = self.frame_conf
+			#self.Likert_safety.data = self.safety
+			self.pub.publish(self.safety)
+			self.dist_arr.publish(self.frm_dist)
+			self.vel_arr.publish(self.frm_vel)
+			self.conf_arr.publish(self.frm_conf)
+			self.dist_fact.publish(Float64(self.d))
+			self.vel_fact.publish(Float64(self.v))
+			self.pub31.publish(Float64(self.os_avg))
+			self.pub32.publish(Float64(self.os_dist))
+			self.pub33.publish(Float64(self.os_vel))
+			self.pub34.publish(Float64(self.os_dist_wtd))
+			self.pub35.publish(Float64(self.os_vel_wtd))
+			self.pub11.publish(Float64(self.frame_dist_min))
+			self.pub12.publish(Float64(self.frame_dist_max))
+			self.pub13.publish(Float64(self.frame_dist_avg))
+			self.pub14.publish(Float64(self.frame_dist_wtd))
+			self.pub21.publish(Float64(self.frame_vel_min))
+			self.pub22.publish(Float64(self.frame_vel_max))
+			self.pub23.publish(Float64(self.frame_vel_avg))
+			self.pub24.publish(Float64(self.frame_vel_wtd))
+    
+		else:
+			print("********** NO HUMAN DETECTED **********")      
         
-    
-def transform_callback2(data):
-    global velocity
-    velocity = data.data
+if __name__ == "__main__":
+    rospy.init_node("Safety_scale")
 
-def transform_callback1(data):
-    global safety, frame_distance, frame_velocity, safety_value, conf_thr, index, conf, velocity, frame_conf,frame_dist_avg,frame_vel_avg,frame_dist_wtd,frame_vel_wtd
-    global dmax,rt,vmax,amax,safety ,prev_d,d,v,time_prev,velo
+    ns = rospy.get_name() + "/"
 
-    norm = 0
-    ex = 0.00000000000000000000000000000000000001
-    new_index = []
-    for li in index:
-    	if float(conf[li]) > conf_thr:
-    	    new_index.append(li)
-    
-    print('third',new_index)
-    
-    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-    
-    dd1 = []
-    vv1 = []
-    cc1 = []
-    for i in new_index:
-        dd1.append(data.data[i])
-        vv1.append(velocity[i])
-        cc1.append(conf[i])
-    dd2 = []
-    vv2 = []
-    cc2 = []
-    keep_index1 = []
-    keep_index1 = [i for i,xd in enumerate(dd1) if math.isnan(xd) == False]
-    for i in keep_index1:
-        dd2.append(dd1[i])
-        vv2.append(vv1[i])
-        cc2.append(cc1[i])
-    dd3 = []
-    vv3 = []
-    cc3 = []
-    keep_index2 = []
-    keep_index2 = [i for i,xv in enumerate(vv2) if math.isnan(xv) == False]
-    
-    for i in keep_index2:
-        dd3.append(dd2[i])
-        vv3.append(vv2[i])
-        cc3.append(cc2[i])
-        
-    frame_distance = dd3[:]
-    frame_velocity = vv3[:]
-    frame_conf = cc3[:]
-    
-    norm = sum(frame_conf)
-    print("norm :",norm)
-
-    if len(frame_distance) != 0 :
-        frame_dist_avg = sum(frame_distance)/len(frame_distance)
-    if len(frame_velocity) != 0 :
-        frame_vel_avg = sum(frame_velocity)/len(frame_velocity)
-        
-    frame_dist_wtd = 0
-    frame_vel_wtd = 0
-    if norm != 0:
-        for i in range(len(frame_distance)):
-            frame_dist_wtd = frame_dist_wtd + ((frame_conf[i]*frame_distance[i])/norm)
-        
-        for i in range(len(frame_velocity)):
-            frame_vel_wtd = frame_vel_wtd + ((frame_conf[i]*frame_velocity[i])/norm)
-    
-    
-    d = 0
-    
-    for i in range(len(frame_distance)):
-        if norm != 0:
-            d = d+(frame_conf[i]/norm)*((frame_distance[i]-dmin)/dmax)
-        else:
-            d = float('nan')
-    if d>1 :
-    	d = 1
-    elif d<0 :
-    	d = 0
-    
-    
-    time_now = rospy.get_rostime().to_sec()
+    dist_topic = rospy.get_param(ns + "dist_topic")
+    velo_topic = rospy.get_param(ns + "velo_topic")
+    conf_topic = rospy.get_param(ns + "conf_topic")
+    safety_topic = rospy.get_param(ns + "safety_topic")
+    dist_min_topic = rospy.get_param(ns + "dist_min_topic")
+    dist_max_topic = rospy.get_param(ns + "dist_max_topic")
+    dist_avg_topic = rospy.get_param(ns + "dist_avg_topic")
+    dist_wtd_topic = rospy.get_param(ns + "dist_wtd_topic")
+    vel_min_topic = rospy.get_param(ns + "vel_min_topic")
+    vel_max_topic = rospy.get_param(ns + "vel_max_topic")
+    vel_avg_topic = rospy.get_param(ns + "vel_avg_topic")
+    vel_wtd_topic = rospy.get_param(ns + "vel_wtd_topic")
+    gsi_avg_topic = rospy.get_param(ns + "gsi_avg_topic")
+    gsi_dist_topic = rospy.get_param(ns + "gsi_dist_topic")
+    gsi_vel_topic = rospy.get_param(ns + "gsi_vel_topic")
+    gsi_dist_wtd_topic = rospy.get_param(ns + "gsi_dist_wtd_topic")
+    gsi_vel_wtd_topic = rospy.get_param(ns + "gsi_vel_wtd_topic")
+    d_factor_topic = rospy.get_param(ns + "d_factor_topic")
+    v_factor_topic = rospy.get_param(ns + "v_factor_topic")
+    dist_arr_topic = rospy.get_param(ns + "dist_arr_topic")
+    vel_arr_topic = rospy.get_param(ns + "vel_arr_topic")
+    conf_arr_topic = rospy.get_param(ns + "conf_arr_topic")
+    desired_keypoints = rospy.get_param(ns + "desired_keypoints")
+    conf_thr = rospy.get_param(ns + "conf_thr")
+    dmax = rospy.get_param(ns + "dmax")
+    dmin = rospy.get_param(ns + "dmin")
+    vmax = rospy.get_param(ns + "vmax")
+    amax = rospy.get_param(ns + "amax")
+    dwt = rospy.get_param(ns + "dwt")
+    vwt = rospy.get_param(ns + "vwt")
+    queue_size = rospy.get_param(ns + "queue_size")
 
 
-    v = 0
-    for i in range(len(frame_velocity)):
-        if norm == 0.0:
-            v = float('nan')
-        elif frame_distance[i] != float('nan') or frame_velocity[i] != float('nan'):
-            allowedv = (frame_distance[i])/rt
-            v = v + (frame_conf[i]/(norm))*((allowedv - frame_velocity[i])/(allowedv+ex))
-        
-    if v<0:
-        v = 0
-    elif v>1:
-        v = 1
-    
-    if len(frame_distance) == 0 or len(frame_velocity) == 0:
-        d = float('nan')
-        v = float('nan')
-    
-    
-    print("d =",d)
-    print("v =",v)
-    print("wtd_dist",frame_dist_wtd)
-    
-    if d == float('nan') or v == float('nan'):
-        os_dist = float('nan')
-        os_vel = float('nan')
-        os_dist_wtd = float('nan')
-        os_vel_wtd = float('nan')
-        os_avg = float('nan')
-    else: 
-        os_dist = d
-        os_vel = v
-        os_dist_wtd = (0.75)*d+(0.25)*v
-        os_vel_wtd = (0.25)*d+(0.75)*v
-        os_avg = (0.5)*d+(0.5)*v
-    
+    publisher = FRESHR_GSI(
+        sub_topic1=dist_topic,
+        sub_topic2=velo_topic,
+        sub_topic3=conf_topic,
+        safety_topic=safety_topic,
+        dist_min_topic=dist_min_topic,
+        dist_max_topic=dist_max_topic,
+        dist_avg_topic=dist_avg_topic,
+        dist_wtd_topic=dist_wtd_topic,
+        vel_min_topic=vel_min_topic,
+        vel_max_topic=vel_max_topic,
+        vel_avg_topic=vel_avg_topic,
+        vel_wtd_topic=vel_wtd_topic,
+        gsi_avg_topic=gsi_avg_topic,
+        gsi_dist_topic=gsi_dist_topic,
+        gsi_vel_topic=gsi_vel_topic,
+        gsi_dist_wtd_topic=gsi_dist_wtd_topic,
+        gsi_vel_wtd_topic=gsi_vel_wtd_topic,
+        d_factor_topic=d_factor_topic,
+        v_factor_topic=v_factor_topic,
+        dist_arr_topic=dist_arr_topic,
+        vel_arr_topic=vel_arr_topic,
+        conf_arr_topic=conf_arr_topic,
+        desired_keypoints=desired_keypoints,
+        conf_thr=conf_thr,
+        dmax=dmax,
+        dmin=dmin,
+        vmax=vmax,
+        amax=amax,
+        dwt=dwt,
+        vwt=vwt,
+        queue_size = queue_size
+    )
 
-    if len(frame_distance) == 0 or os_avg == float('nan'):
-    	lp = 9
-    	safety = likert_scale(lp)
-    elif os_avg < 0.1 :
-    	lp = 1
-    	safety = likert_scale(lp)
-    elif os_avg >= 0.1 and os_avg < 0.28 :
-    	lp = 2
-    	safety = likert_scale(lp)
-    elif os_avg >= 0.28 and os_avg < 0.45:
-    	lp = 3
-    	safety = likert_scale(lp)
-    elif os_avg >= 0.45 and os_avg < 0.55:
-    	lp = 4
-    	safety = likert_scale(lp)
-    elif os_avg > 0.55 and os_avg <= 0.73 :
-    	lp = 5
-    	safety = likert_scale(lp) 
-    elif os_avg > 0.73 and os_avg <= 0.9 :
-    	lp = 6
-    	safety = likert_scale(lp)
-    elif os_avg > 0.9 :
-    	lp = 7
-    	safety = likert_scale(lp)
-    
-    
-    print('current distance :',frame_distance,'m distance factor :',d)
-    print('confidence :',frame_conf)
-    print('current velocity :',frame_velocity,'m/s velocity factor :',v)
-    print('overall (distance+velocity) :',os_avg)
-    print('avg vs wtd :',frame_dist_avg,frame_dist_wtd)
-    print(safety)
-    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-    time_prev = time_now
-    frm_dist.data = frame_distance
-    frm_vel.data = frame_velocity
-    frm_conf.data = frame_conf
-    pub.publish(String(safety))
-    dist_arr.publish(frm_dist)
-    vel_arr.publish(frm_vel)
-    conf_arr.publish(frm_conf)
-    dist_fact.publish(d)
-    vel_fact.publish(v)
-    pub31.publish(Float64(os_avg))
-    pub32.publish(Float64(os_dist))
-    pub33.publish(Float64(os_vel))
-    pub34.publish(Float64(os_dist_wtd))
-    pub35.publish(Float64(os_vel_wtd))
-    pub11.publish(Float64(min(frame_distance, default=float('NaN'))))
-    pub12.publish(Float64(max(frame_distance, default=float('NaN'))))
-    pub13.publish(Float64(frame_dist_avg))
-    pub14.publish(Float64(frame_dist_wtd))
-    pub21.publish(Float64(min(frame_velocity, default=float('NaN'))))
-    pub22.publish(Float64(max(frame_velocity, default=float('NaN'))))
-    pub23.publish(Float64(frame_vel_avg))
-    pub24.publish(Float64(frame_vel_wtd))
-    
-    
-
-
-def dxl_control():
-
-    global safety, frame_distance, frame_velocity, safety_value
-    rospy.init_node('compatibility', anonymous=True)
-    rospy.Subscriber('/confidence', Float64MultiArray, transform_callback3)
-    rospy.Subscriber('/velocity', Float64MultiArray, transform_callback2)
-    rospy.Subscriber('/distance', Float64MultiArray, transform_callback1)
-    #rospy.Subscriber('/distance_btw', Float64MultiArray, transform_callback1)
-    while not rospy.is_shutdown():
-        rospy.spin()
-        
-    
-
-
-if __name__ == '__main__':
-    try:
-        dxl_control()
-    except rospy.ROSInterruptException:
-        pass
+    rospy.spin()
