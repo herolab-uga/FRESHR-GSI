@@ -65,22 +65,22 @@ GSI :
   
   Generalizable Safety Index is generalizable in terms of safety metrics and the utility of this scale. GSI vlaues from 0 to 1, where 0 means unsafe and 1 means safe. GSI can be used for path planning and safely navigating through a crowded environment. It can be used by an operator or external agent to monitor the safety of the human during any HRI/HRC, and will also allow controlling the robot to provide more safety and comfort to the humans. Our initial focus is on the distance and velocity factors, as they are sufficient measures to determine safety given the large area of interaction space. However, in the future, such as in a human-robot collaboration scenario where the interaction area is smaller, more refined measurements need to be added to the framework for a holistic safety evaluation. These additional measures include relative acceleration of joints and physiological metrics (such as heartbeat or some form of human stress measurements). This node subscribe to **/distance**, **/velocity**, and **/confidence** from metric estimator and publishes below rostopics :
     
-    - /Framework/distance_min : This topic provides the minimum distance among all the keypoint's distances estimated by the metric estimator.
-    - /Framework/distance_max : This topic provides the maximum distance among all the keypoint's distances estimated by the metric estimator.
-    - /Framework/distance_avg : This topic provides the average distance among all the keypoint's distances estimated by the metric estimator.
-    - /Framework/distance_wtd : This topic provides the weighted distance among all the keypoint's distances estimated by the metric estimator. Weight is based on the confidence of each keypoint.
-    - /Framework/velocity_min : This topic provides the minimum velocity among all the keypoint's velocities estimated by the metric estimator.
-    - /Framework/velocity_max : This topic provides the maximum velocity among all the keypoint's velocities estimated by the metric estimator.
-    - /Framework/velocity_avg : This topic provides the average velocity among all the keypoint's velocities estimated by the metric estimator.
-    - /Framework/velocity_wtd : This topic provides the weighted velocity among all the keypoint's velocities estimated by the metric estimator. Weight is based on the confidence of each keypoint.
-    - /Framework/distance_factor : This topic publishes the distance factor using weighted distance.
-    - /Framework/velocity_factor : This topic publishes the velocity factor using weighted velocity.
-    - /Framework/safety_value_dist : This topic publishes the GSI value only based on distance factor, which means that the weight for distance factor is 1 for this topic.
-    - /Framework/safety_value_vel : This topic publishes the GSI value only based on velocity factor, which means that the weight for velocity factor is 1 for this topic. 
-    - /Framework/safety_value_dist_wtd : This topic publishes the GSI value based on distance and velocity factor, here the weights for distance factor is 0.75 and 0.25 for velocity factor.
-    - /Framework/safety_value_vel_wtd : This topic publishes the GSI value based on distance and velocity factor, here the weights for distance factor is 0.25 and 0.75 for velocity factor.
-    - /Framework/safety_value_avg : This topic publishes the GSI value based on distance and velocity factor, here the weight for distance factor and velocity factor is equal which is 0.5. 
-    - /Framework/safety : This topic converts the GSI value to human readable format by using 7-point Likert scale. If there is no human in the camera range, then it will publish "Nothing Detected or System Unavailable".
+    - /freshr/distance_min : This topic provides the minimum distance among all the keypoint's distances estimated by the metric estimator.
+    - /freshr/distance_max : This topic provides the maximum distance among all the keypoint's distances estimated by the metric estimator.
+    - /freshr/distance_avg : This topic provides the average distance among all the keypoint's distances estimated by the metric estimator.
+    - /freshr/distance_wtd : This topic provides the weighted distance among all the keypoint's distances estimated by the metric estimator. Weight is based on the confidence of each keypoint.
+    - /freshr/velocity_min : This topic provides the minimum velocity among all the keypoint's velocities estimated by the metric estimator.
+    - /freshr/velocity_max : This topic provides the maximum velocity among all the keypoint's velocities estimated by the metric estimator.
+    - /freshr/velocity_avg : This topic provides the average velocity among all the keypoint's velocities estimated by the metric estimator.
+    - /freshr/velocity_wtd : This topic provides the weighted velocity among all the keypoint's velocities estimated by the metric estimator. Weight is based on the confidence of each keypoint.
+    - /freshr/distance_factor : This topic publishes the distance factor using weighted distance.
+    - /freshr/velocity_factor : This topic publishes the velocity factor using weighted velocity.
+    - /freshr/safety_value_dist : This topic publishes the GSI value only based on distance factor, which means that the weight for distance factor is 1 for this topic.
+    - /freshr/safety_value_vel : This topic publishes the GSI value only based on velocity factor, which means that the weight for velocity factor is 1 for this topic. 
+    - /freshr/safety_value_dist_wtd : This topic publishes the GSI value based on distance and velocity factor, here the weights for distance factor is 0.75 and 0.25 for velocity factor.
+    - /freshr/safety_value_vel_wtd : This topic publishes the GSI value based on distance and velocity factor, here the weights for distance factor is 0.25 and 0.75 for velocity factor.
+    - /freshr/safety_value_avg : This topic publishes the GSI value based on distance and velocity factor, here the weight for distance factor and velocity factor is equal which is 0.5. 
+    - /freshr/safety : This topic converts the GSI value to human readable format by using 7-point Likert scale. If there is no human in the camera range, then it will publish "Nothing Detected or System Unavailable".
 
 DI :
   
