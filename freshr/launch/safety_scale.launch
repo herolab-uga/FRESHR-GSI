@@ -1,5 +1,39 @@
 <launch>
-    <node pkg="freshr" type="GSI.py" name="safety_scale" output="screen">
+    <node pkg="cv_basics" type="safety_scale.py" name="safety_scale" output="screen" ns="safety_scale">
+        <param name="dist_topic" type="str" value="/distance"/> <!-- For case 2 #/distance_btw -->
+        <param name="velo_topic" type="str" value="/velocity"/> <!-- For case 2 #/velocity_btw -->
+        <param name="conf_topic" type="str" value="/confidence"/>
+        <param name="safety_topic" type="str" value="/freshr/safety"/>
+        <param name="dist_min_topic" type="str" value="/freshr/distance_min"/>
+        <param name="dist_max_topic" type="str" value="/freshr/distance_max"/>
+        <param name="dist_avg_topic" type="str" value="/freshr/distance_avg"/>
+        <param name="dist_wtd_topic" type="str" value="/freshr/distance_wtd"/>
+        <param name="vel_min_topic" type="str" value="/freshr/velocity_min"/>
+        <param name="vel_max_topic" type="str" value="/freshr/velocity_max"/>
+        <param name="vel_avg_topic" type="str" value="/freshr/velocity_avg"/>
+        <param name="vel_wtd_topic" type="str" value="/freshr/velocity_wtd"/>
+        <param name="gsi_avg_topic" type="str" value="/freshr/gsi_avg"/>
+        <param name="gsi_dist_topic" type="str" value="/freshr/gsi_dist"/>
+        <param name="gsi_vel_topic" type="str" value="/freshr/gsi_vel"/>
+        <param name="gsi_dist_wtd_topic" type="str" value="/freshr/gsi_dist_wtd"/>
+        <param name="gsi_vel_wtd_topic" type="str" value="/freshr/gsi_vel_wtd"/>
+        <param name="d_factor_topic" type="str" value="/freshr/distance_factor"/>
+        <param name="v_factor_topic" type="str" value="/freshr/velocity_factor"/>
+        <param name="dist_arr_topic" type="str" value="/freshr/distance_array"/>
+        <param name="vel_arr_topic" type="str" value="/freshr/velocity_array"/>
+        <param name="conf_arr_topic" type="str" value="/freshr/confidence_array"/>
+        <param name="desired_keypoints" type="str" value="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16"/> <!-- #Select only keypoints necessary-->
+        <param name="conf_thr" type="str" value="0.9" />  <!-- #Detect only if the confidence is greater that this param-->
+        <param name="dmax" type="str" value="3.0" />  <!-- #maximum detectable distance for camera-->
+        <param name="dmin" type="str" value="0.5" /> <!-- #minimum allowed distance for robot-->
+        <param name="vmax" type="str" value="2.0" /> <!-- #maximum velocity of robot-->
+        <param name="amax" type="str" value="0.7" /> <!-- #maximum acceleration of robot-->
+        <param name="dwt" type="str" value="0.5" /> <!-- #weights for distance-->
+        <param name="vwt" type="str" value="0.5" /> <!-- #weights for velocity-->
+        <param name="rhod" type="str" value="1" /> <!-- #trend configuration parameter, used to change the non-linearity relationship between distance and safety value-->
+        <param name="rhov" type="str" value="1" /> <!-- #trend configuration parameter, used to change the non-linearity relationship between velocity and safety value-->
+        <param name="queue_size" type="int" value="10" />
+    </node>
     <node pkg="freshr" type="DI.py" name="safety_scale" output="screen">
     <node pkg="freshr" type="ZI.py" name="safety_scale" output="screen">
 
