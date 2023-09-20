@@ -1,5 +1,5 @@
 <launch>
-    <node pkg="cv_basics" type="safety_scale.py" name="safety_scale" output="screen" ns="safety_scale">
+    <node pkg="freshr" type="safety_scale.py" name="safety_scale" output="screen" ns="safety_scale">
         <param name="dist_topic" type="str" value="/distance"/> <!-- For case 2 #/distance_btw -->
         <param name="velo_topic" type="str" value="/velocity"/> <!-- For case 2 #/velocity_btw -->
         <param name="conf_topic" type="str" value="/confidence"/>
