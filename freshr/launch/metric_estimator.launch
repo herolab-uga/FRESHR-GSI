@@ -1,8 +1,12 @@
 <launch>
-  <node
-    pkg="freshr"
-    type="metric_estimator.py"
-    name="metric_estimator"
-    output="screen"
-  />
+
+     <node pkg="freshr" type="metric_estimator.py" name="m_e" output="screen" ns="metric_est">
+
+        <param name="conf_thr" type="str" value="0.9" />
+        <param name="pc" type="str" value="0" />
+        <param name="offset" type="str" value="17" />
+        <param name="prev_time" type="str" value="-20.0" />
+        <param name="queue_size" type="int" value="10" />
+
+     </node>
 </launch>
