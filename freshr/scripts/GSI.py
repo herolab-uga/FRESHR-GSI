@@ -9,7 +9,7 @@ import pyrealsense2 as rs
 
 
 class FRESHR_GSI:
-	def __init__(self, sub_topic1: str, sub_topic2: str, sub_topic3: str, safety_topic: str, dist_min_topic: str, dist_max_topic: str, dist_avg_topic: str, dist_wtd_topic: str, vel_min_topic: str, vel_max_topic: str, vel_avg_topic: str, vel_wtd_topic: str, gsi_avg_topic: str, gsi_dist_topic: str, gsi_vel_topic: str, gsi_dist_wtd_topic: str, gsi_vel_wtd_topic: str, d_factor_topic: str, v_factor_topic: str, dist_arr_topic: str, vel_arr_topic: str, conf_arr_topic: str, desired_keypoints: str, conf_thr: str, dmax: str, dmin: str, vmax: str, amax: str, dwt: str,vwt:str, queue_size: int = 10):
+	def __init__(self, sub_topic1: str, sub_topic2: str, sub_topic3: str, safety_topic: str, dist_min_topic: str, dist_max_topic: str, dist_avg_topic: str, dist_wtd_topic: str, vel_min_topic: str, vel_max_topic: str, vel_avg_topic: str, vel_wtd_topic: str, gsi_avg_topic: str, gsi_dist_topic: str, gsi_vel_topic: str, gsi_dist_wtd_topic: str, gsi_vel_wtd_topic: str, d_factor_topic: str, v_factor_topic: str, dist_arr_topic: str, vel_arr_topic: str, conf_arr_topic: str, desired_keypoints: str, conf_thr: str, dmax: str, dmin: str, vmax: str, amax: str, dwt: str,vwt:str , rhod: str, rhov:str, queue_size: int = 10):
 		
 		self.desired_keypoints = list(desired_keypoints.split(","))
 		self.conf_thr = float(conf_thr)
@@ -38,6 +38,8 @@ class FRESHR_GSI:
 		self.time_prev = 0
 		self.dwt = float(dwt)
 		self.vwt = float(vwt)
+		self.rhod = float(rhod)
+		self.rhov = float(rhov)
 		
 		self.n_human_subscriber = rospy.Subscriber("/number_of_humans", Float64, self.n_humans)
 		self.velocity_subscriber = rospy.Subscriber('/velocity', Float64MultiArray, self.transform_callback2)
@@ -196,18 +198,9 @@ class FRESHR_GSI:
 					self.v[nh] = float('nan')
 
 				if self.d[nh] == float('nan') or self.v[nh] == float('nan'):
-					self.os_dist[nh] = float('nan')
-					self.os_vel[nh] = float('nan')
-					self.os_dist_wtd[nh] = float('nan')
-					self.os_vel_wtd[nh] = float('nan')
 					self.os_avg[nh] = float('nan')
 				else:
-					self.os_dist[nh] = float(self.d[nh])
-					self.os_vel[nh] = float(self.v[nh])
-					self.os_dist_wtd[nh] = float((0.75)*self.d[nh]+(0.25)*self.v[nh])
-					self.os_vel_wtd[nh] = float((0.25)*self.d[nh]+(0.75)*self.v[nh])
-					self.os_avg[nh] = float((0.5)*self.d[nh]+(0.5)*self.v[nh])
-					#self.os_avg[nh] = float((self.dwt)*self.d[nh]+(self.vwt)*self.v[nh])
+					self.os_avg[nh] = float(((self.dwt)*math.pow(self.d[nh],self.rhod))+((self.vwt)*math.pow(self.v[nh],self.rhov)))
 
 
 
@@ -321,6 +314,8 @@ if __name__ == "__main__":
     amax = rospy.get_param(ns + "amax")
     dwt = rospy.get_param(ns + "dwt")
     vwt = rospy.get_param(ns + "vwt")
+    rhod = rospy.get_param(ns + "rhod")
+    rhov = rospy.get_param(ns + "rhov")
     queue_size = rospy.get_param(ns + "queue_size")
 
 
@@ -355,6 +350,8 @@ if __name__ == "__main__":
         amax=amax,
         dwt=dwt,
         vwt=vwt,
+        rhod=rhod,
+        rhov=rhov,
         queue_size = queue_size
     )
 
