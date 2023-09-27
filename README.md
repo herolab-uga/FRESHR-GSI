@@ -75,11 +75,11 @@ GSI :
     - /freshr/velocity_wtd : This topic provides the weighted velocity among all the keypoint's velocities estimated by the metric estimator. Weight is based on the confidence of each keypoint.
     - /freshr/distance_factor : This topic publishes the distance factor using weighted distance.
     - /freshr/velocity_factor : This topic publishes the velocity factor using weighted velocity.
-    - /freshr/safety_value_dist : This topic publishes the GSI value only based on distance factor, which means that the weight for distance factor is 1 for this topic.
-    - /freshr/safety_value_vel : This topic publishes the GSI value only based on velocity factor, which means that the weight for velocity factor is 1 for this topic. 
-    - /freshr/safety_value_dist_wtd : This topic publishes the GSI value based on distance and velocity factor, here the weights for distance factor is 0.75 and 0.25 for velocity factor.
-    - /freshr/safety_value_vel_wtd : This topic publishes the GSI value based on distance and velocity factor, here the weights for distance factor is 0.25 and 0.75 for velocity factor.
-    - /freshr/safety_value_avg : This topic publishes the GSI value based on distance and velocity factor, here the weight for distance factor and velocity factor is equal which is 0.5. 
+    - /freshr/gsi_dist : This topic publishes the GSI value only based on distance factor, which means that the weight for distance factor is 1 for this topic.
+    - /freshr/gsi_vel : This topic publishes the GSI value only based on velocity factor, which means that the weight for velocity factor is 1 for this topic. 
+    - /freshr/gsi_dist_wtd : This topic publishes the GSI value based on distance and velocity factor, here the weights for distance factor is 0.75 and 0.25 for velocity factor.
+    - /freshr/gsi_vel_wtd : This topic publishes the GSI value based on distance and velocity factor, here the weights for distance factor is 0.25 and 0.75 for velocity factor.
+    - /freshr/gsi_avg : This topic publishes the GSI value based on distance and velocity factor, here the weight for distance factor and velocity factor is equal which is 0.5. 
     - /freshr/safety : This topic converts the GSI value to human readable format by using 7-point Likert scale. If there is no human in the camera range, then it will publish "Nothing Detected or System Unavailable".
 
 DI :
