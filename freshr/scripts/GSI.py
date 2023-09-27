@@ -166,7 +166,7 @@ class FRESHR_GSI:
 
 				for i in range(len(self.frame_distance[nh])):
 					if norm[nh] != 0:
-						self.d[nh] = self.d[nh] +(self.frame_conf[nh][i]/norm[nh])*((self.frame_distance[nh][i]-self.dmin)/(self.dmax-self.dmin))
+						self.d[nh] = self.d[nh] + (math.pow((self.frame_conf[nh][i]/norm[nh])*((self.frame_distance[nh][i]-self.dmin)/(self.dmax-self.dmin)),self.rhod))
 					else:
 						self.d[nh] = float('nan')
 				if self.d[nh]>1 :
@@ -181,7 +181,7 @@ class FRESHR_GSI:
 						self.v[nh] = float('nan')
 					elif self.frame_distance[nh][i] != float('nan') or self.frame_velocity[nh][i] != float('nan'):
 						allowedv = (self.frame_distance[nh][i])/self.rt
-						self.v[nh] = self.v[nh] + (self.frame_conf[nh][i]/(norm[nh]))*((allowedv - self.frame_velocity[nh][i])/(allowedv+ex))
+						self.v[nh] = self.v[nh] + (math.pow((self.frame_conf[nh][i]/(norm[nh]))*((allowedv - self.frame_velocity[nh][i])/(allowedv+ex)),self.rhov))
 
 				self.frame_dist_min[nh] = min(self.frame_distance[nh], default=float('nan'))
 				self.frame_dist_max[nh] = max(self.frame_distance[nh], default=float('nan'))
@@ -200,7 +200,7 @@ class FRESHR_GSI:
 				if self.d[nh] == float('nan') or self.v[nh] == float('nan'):
 					self.os_avg[nh] = float('nan')
 				else:
-					self.os_avg[nh] = float(((self.dwt)*math.pow(self.d[nh],self.rhod))+((self.vwt)*math.pow(self.v[nh],self.rhov)))
+					self.os_avg[nh] = float(((self.dwt)*self.d[nh])+((self.vwt)self.v[nh]))
 
 
 
