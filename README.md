@@ -3,7 +3,7 @@ We propose a new framework and safety scale for evaluating safety in human-robot
 
 Below is the architecture of our framework.
 
-![Alt text](/images/architecture.png?raw=true)
+![Alt text](/images/framework_architecture.png?raw=true)
 
 
 ## Pre-requisite
