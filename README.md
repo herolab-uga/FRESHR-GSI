@@ -44,19 +44,55 @@ After completing all the above steps and making sure everything is installed and
 ```
 ## ROS Nodes
 
-Yolov7 :
-  
-  When interacting with robots using this framework, we can directly use the Yolov7 pose estimation to estimate the pose and extract the skeleton keypoints with confidence. But, if we plan to use an external vision system to provide GSI value using the framework, we will need simple object detection scripts to detect both the robot and human. So, we have keypoint.py and object_detect.py to detect the keypoints as well as the robot. keypoint.py and object_detect.py files subscribe to the RGB image supplied by the camera and will publish **/human_skeleton_keypoints** and **/bboxes_array** respectively.
+**Yolov7:**
 
-Gazebo :
-  
-  To test this FRESHR-GSI, we use Husky in gazebo simulations. We provided the world files for the Human actors' movement and launch files to launch the actors and husky in an empty world. Different launch files are present in the gazebo/launch folder and each launch file belongs to a specific case and scenario. E.g. case1_sc1.launch is for all settings using case 1 and scenario 1 setup, case1_sc2_1.launch file is for setting 1 for scenario 2 using case 1 setup and so on. Similarly, for spawning the husky we have different launch files that will launch the husky at a specific location, and especially for case 2 we need two husky to represent one as interacting and one as an external agent observing the interaction between human and robot.
+Our FRESHR-GSI framework enhances interactions between humans and robots by leveraging advanced pose estimation and object detection technologies. This section guides you through utilizing our framework, whether you're directly interacting with robots or integrating external vision systems for enhanced situational awareness.
+Direct Robot Interaction
 
-Ground_truth : 
+For direct interactions with robots, we utilize YOLOv7 pose estimation. This powerful tool enables us to accurately estimate human poses, extracting skeleton keypoints along with their confidence levels. This direct method is straightforward and highly effective for scenarios where the robot is the primary observer or participant in the interaction.
+Integration with External Vision Systems
+
+If your setup involves an external vision system to evaluate the Generalizable Safety Index (GSI) values, additional steps are required to ensure seamless integration:
+
+    Simple Object Detection: To accommodate external vision systems, our framework includes scripts for basic object detection tasks. These are essential for recognizing both human participants and robots within the environment.
+
+    Key Detection Scripts:
+        keypoint.py: This script is dedicated to detecting and extracting human skeleton keypoints. It operates on RGB images from the camera, identifying key points of interest on the human body and calculating their confidence levels.
+        object_detect.py: Complementing keypoint.py, this script focuses on detecting robots within the camera's field of view. It identifies and outlines robots, facilitating a comprehensive understanding of the scene for safety calculations.
+
+Both keypoint.py and object_detect.py subscribe to RGB image feeds provided by the camera. Upon processing, they publish the detected data to /human_skeleton_keypoints and /bboxes_array topics, respectively. This publication mechanism ensures that all relevant information is readily available for further processing and analysis within the framework.
+
+**Gazebo:**
+  
+  Our FRESHR-GSI framework has been thoroughly tested using Husky robots within the Gazebo simulation environment. To facilitate this, we've prepared and included world files that animate human actors' movements, alongside launch files that initiate both the actors and a Husky robot within a simulated empty environment. These resources aim to provide a comprehensive setup for testing under various scenarios and conditions.
+Launch Files Organization
+
+Located within the gazebo/launch directory, you'll find a series of launch files, each tailored to a specific test case and scenario:
+
+    Case and Scenario Specific Files: Files named following the pattern case#_sc#.launch are configured for distinct setups. For instance, case1_sc1.launch is prepared for testing using the settings of case 1 and scenario 1. Similarly, case1_sc2_1.launch targets the first setting of scenario 2, using the setup from case 1, and so forth.
+    Husky Spawning Files: Separate launch files are available for spawning the Husky robot at predetermined locations within the simulation. This setup is crucial for conducting precise and controlled experiments.
+    Special Case Configurations: For scenarios requiring the representation of both an interacting and an observing external agent, such as in case 2, we provide configurations for deploying two Husky robots. This setup allows for a detailed examination of interactions between humans and robots, as well as the observation of these interactions by an external entity.
+
+Adding More Human Actors
+
+While the provided world file currently includes a single human actor by default, the framework is designed to accommodate multiple human actors within the simulation environment. This flexibility allows for testing the FRESHR-GSI framework under conditions involving various levels of human-robot interaction and crowd complexity.
+Steps for Testing
+
+    Choose Your Scenario: Begin by selecting the appropriate launch file for the scenario you wish to test. The launch file will set up the environment, including the Husky robot(s) and human actors.
+
+    Launch the Simulation: Execute the chosen launch file using ROS's roslaunch command. This step will initiate the Gazebo simulation, placing the Husky robot(s) and human actor(s) according to the scenario's specifications.
+
+    Observe and Analyze: With the simulation running, you can now observe the interactions and collect data relevant to the FRESHR-GSI's performance. This includes assessing the system's ability to accurately calculate safety indexes in dynamic environments.
+
+    Modify and Expand: Feel free to add more human actors to the simulation or tweak the scenario settings to explore the framework's capabilities across a broader range of conditions.
+
+By following these guidelines, researchers and developers can leverage our Gazebo simulation setup to rigorously test and refine the FRESHR-GSI framework, ensuring its effectiveness and reliability in real-world applications.
+
+**Ground_truth:**
   
   To compare FRESHR-provided metrics with the ground truth, we have ground_truth.py file which subscribes to the **/gazebo/model_states** and calculates the ground truth distance between human and robot as well as the velocity of each model.
 
-Metric Estimator :
+**Metric Estimator:**
   
   This node is designed to calculate the distance and velocity of individual keypoints in a human skeleton as detected by YOLO. It subscribes to the /human_skeleton_keypoints and camera depth data to derive these metrics for each keypoint coordinate detailed in the /human_skeleton_keypoints ROS topic. In cases where a human is not within the detectable range, the node defaults to recording NaN values for both distance and velocity.
 
@@ -72,7 +108,7 @@ It also leverages the camera_info topic to utilize the camera's intrinsic values
 This setup ensures a comprehensive assessment of human presence and movement, valuable for applications requiring precise human tracking and analysis.
 
 
-GSI :
+**GSI:**
   
   The Generalizable Safety Index (GSI) is a versatile metric for assessing safety across various parameters, offering a scalable utility from 0 (unsafe) to 1 (safe). It plays a crucial role in path planning and ensuring secure navigation through populated areas. GSI facilitates both manual and autonomous monitoring of human safety in human-robot interactions (HRI) and human-robot collaboration (HRC), enhancing the comfort and security provided by robots.
 
@@ -107,11 +143,11 @@ This node subscribes to metrics from the estimator (/distance, /velocity, /confi
 
 This framework underscores the importance of adaptive and nuanced safety assessments in robotics, paving the way for safer human-robot ecosystems.
 
-DI :
+**DI:**
   
   DI is the Danger Index. We use this as one of our baseline for comparison. This is based on the paper [https://link.springer.com/article/10.1007/s10514-006-9009-4]. This node also subscribes to the same topic as GSI and provides us with the Danger Index. The Danger Index is the opposite of GSI, which means that 0 means safe and 1 means unsafe, so we converge the scale for comparison by subtracting the DI value from 1. This node publishes the **/danger_index** topic.
 
-ZI :
+**ZI:**
   
   ZI is the zonal-based index. This is based on the paper [https://doi.org/10.48550/arXiv.2208.02010]. Here they have used the average speed of a human and combined it with the distance. They have divided the region into three safety zones: **Red** means unsafe zone (< 0.5 m for comparison purposes), **Yellow** means Neutral zone (<2.25 m and >0.5 m for comparison purposes), and **Green** means safe zone (> 2.25 m for comparison purpose). This node publishes the **/zonal_safety** topic.
   
