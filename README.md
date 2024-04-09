@@ -12,7 +12,7 @@ This package is tested on [ROS (noetic)](http://wiki.ros.org/noetic/Installation
 
 ## Setup
 
-For experiments, we use husky in gazebo simulation mounted with intel realsense RGB-D camera. After installing [Husky Packages](http://wiki.ros.org/Robots/Husky), copy the gazebo world files to the husky_gazebo/worlds folder and launch files to the husky_gazebo/launch folder. These world files are to create human actors as per the cases, scenarios, and settings and launch files will help to launch those world files. Cases and scenarios are defined below:
+For experiments, we use husky in gazebo simulation mounted with intel realsense RGB-D camera. After installing [Husky Packages](http://wiki.ros.org/Robots/Husky), copy the gazebo world files to the husky_gazebo/worlds folder and launch files to the **husky_gazebo/launch** folder. These world files are to create human actors as per the cases, scenarios, and settings and launch files will help to launch those world files. Cases and scenarios are defined below:
 
   Cases :
   * 1: Using Interactive robot's camera data to provide a safety level for Humans.
@@ -29,7 +29,7 @@ For experiments, we use husky in gazebo simulation mounted with intel realsense 
   * 3: Diagonal trajectory is followed. Human/Robot crosses each other diagonally. Humans might not remain in the viewable range of the interacting robot.
 
 
-As mentioned above for yolov7 we used third-party GitHub repo and made some minor changes so, after installing yolov7 copy the yolov7-ros/src and yolov7-ros/launch files from this github to the installed yolov7-ros/src folder and yolov7-ros/launch folder respectively. These Python files will publish the human skeleton keypoint's pixel location along with confidence in /human_skeleton_keypoints rostopic and bounding box x-y location in /bboxes_array rostopic.
+As mentioned above for yolov7 we used third-party GitHub repo and made some minor changes so, after installing yolov7 copy the yolov7-ros/src and yolov7-ros/launch files from this github to the installed yolov7-ros/src folder and yolov7-ros/launch folder respectively. These Python files will publish the human skeleton keypoint's pixel location along with confidence in **/human_skeleton_keypoints** rostopic and bounding box x-y location in **/bboxes_array** rostopic.
 
 ## Installation
 
@@ -60,7 +60,7 @@ If your setup involves an external vision system to evaluate the Generalizable S
         keypoint.py: This script is dedicated to detecting and extracting human skeleton keypoints. It operates on RGB images from the camera, identifying key points of interest on the human body and calculating their confidence levels.
         object_detect.py: Complementing keypoint.py, this script focuses on detecting robots within the camera's field of view. It identifies and outlines robots, facilitating a comprehensive understanding of the scene for safety calculations.
 
-Both keypoint.py and object_detect.py subscribe to RGB image feeds provided by the camera. Upon processing, they publish the detected data to /human_skeleton_keypoints and /bboxes_array topics, respectively. This publication mechanism ensures that all relevant information is readily available for further processing and analysis within the framework.
+Both keypoint.py and object_detect.py subscribe to RGB image feeds provided by the camera. Upon processing, they publish the detected data to **/human_skeleton_keypoints** and **/bboxes_array** topics, respectively. This publication mechanism ensures that all relevant information is readily available for further processing and analysis within the framework.
 
 **Gazebo:**
   
@@ -94,7 +94,7 @@ By following these guidelines, researchers and developers can leverage our Gazeb
 
 **Metric Estimator:**
   
-  This node is designed to calculate the distance and velocity of individual keypoints in a human skeleton as detected by YOLO. It subscribes to the /human_skeleton_keypoints and camera depth data to derive these metrics for each keypoint coordinate detailed in the /human_skeleton_keypoints ROS topic. In cases where a human is not within the detectable range, the node defaults to recording NaN values for both distance and velocity.
+  This node is designed to calculate the distance and velocity of individual keypoints in a human skeleton as detected by YOLO. It subscribes to the **/human_skeleton_keypoints** and camera depth data to derive these metrics for each keypoint coordinate detailed in the **/human_skeleton_keypoints** ROS topic. In cases where a human is not within the detectable range, the node defaults to recording NaN values for both distance and velocity.
 
 Additionally, this node outputs several topics:
 
@@ -103,7 +103,7 @@ Additionally, this node outputs several topics:
     `/confidence`: Confidence levels for each detected keypoint.
     `/human_detection`: This topic reflects the total count of humans detected; if no humans are detected, it publishes `-1`.
 
-It also leverages the camera_info topic to utilize the camera's intrinsic values for calculating and publishing the bearing of detected humans within the camera's field of view. These bearings are published as angles in radians to /azimuth_angle_of_humans and in degrees to /degree_angle_of_humans.
+It also leverages the camera_info topic to utilize the camera's intrinsic values for calculating and publishing the bearing of detected humans within the camera's field of view. These bearings are published as angles in radians to **/azimuth_angle_of_humans** and in degrees to **/degree_angle_of_humans**.
 
 This setup ensures a comprehensive assessment of human presence and movement, valuable for applications requiring precise human tracking and analysis.
 
@@ -114,7 +114,7 @@ This setup ensures a comprehensive assessment of human presence and movement, va
 
 Initial evaluations focus on distance and velocity as primary safety indicators within large interaction spaces. Future enhancements will introduce finer measurements for compact spaces, such as joint acceleration and physiological indicators (e.g., heart rate, stress levels), to provide a comprehensive safety analysis.
 
-This node subscribes to metrics from the estimator (/distance, /velocity, /confidence, /azimuth_angle_of_humans) and publishes detailed safety assessments across multiple topics:
+This node subscribes to metrics from the estimator (**/distance, /velocity, /confidence, /azimuth_angle_of_humans**) and publishes detailed safety assessments across multiple topics:
 
     Distance Metrics:
         /freshr/distance_min: Minimum distance from the metric estimator.
@@ -173,7 +173,7 @@ The above command will start the gazebo and you can see a human actor and a husk
   roslaunch yolov7_ros keypoint.launch
 ```
 
-Yolov7 publishes the Human Skeleton Keypoints at higher rates which will force the FRESHR-GSI to publish the same value multiple times. To control the publishing rate you can use [topic-tools](http://wiki.ros.org/topic_tools/throttle) to throttle the pose estimation messages at 1 Hz or use the below command directly (considering you are publishing the keypoints to rostopic /human_skeleton_keypoints) to publish it at 1 Hz.
+Yolov7 publishes the Human Skeleton Keypoints at higher rates which will force the FRESHR-GSI to publish the same value multiple times. To control the publishing rate you can use [topic-tools](http://wiki.ros.org/topic_tools/throttle) to throttle the pose estimation messages at 1 Hz or use the below command directly (considering you are publishing the keypoints to rostopic **/human_skeleton_keypoints**) to publish it at 1 Hz.
 
 ```
   rosrun topic_tools throttle messages /human_skeleton_keypoints 1.0
