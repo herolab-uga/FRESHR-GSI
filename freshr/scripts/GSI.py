@@ -344,16 +344,9 @@ class FRESHR_GSI:
 			for i in range(int(human_num)):
 				gsi_ang[i] = 1 - ((1-self.os_avg[i])*math.cos((theta[i]*22)/(180*7)))
 			
-
-			print(np.sign(self.frame_vel_wtd[nh])	)
-			print("gsi_ang ",gsi_ang)
 			newgsiangles = [x for x in gsi_ang if not math.isnan(x)]
-			print('newgsiangles ',newgsiangles)
 			if len(newgsiangles) == 0:
 				return np.nan
-			print("sum ", np.sum(np.exp(-np.array(newgsiangles) / alpha))	)
-			print("log ", np.log((1 / len(newgsiangles)) * np.sum(np.exp(-np.array(newgsiangles) / alpha)))	)
-			print("length ",len(newgsiangles))
 			
 			gsi_o = -alpha * np.log((1 / len(newgsiangles)) * np.sum(np.exp(-np.array(newgsiangles) / alpha)))	
 			collective_gsi = np.clip(gsi_o, 0, 1)
