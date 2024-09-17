@@ -8,26 +8,8 @@ import numpy as np
 import math
 import pyrealsense2 as rs
 
-'''
-import matplotlib.pyplot as plt
-import torch
-import cv2
-import numpy as np
-import time
-import rospy
-import math
-from std_msgs.msg import String, Float64,Int32MultiArray, Float64MultiArray
-from torchvision import transforms
-from utils.datasets import letterbox
-from utils.general import non_max_suppression_kpt
-from utils.plots import output_to_keypoint, plot_skeleton_kpts
-from vision_msgs.msg import Detection2DArray, Detection2D, BoundingBox2D
-from sensor_msgs.msg import Image, CompressedImage
-from cv_bridge import CvBridge
-'''
-
 class FRESHR_GSI:
-	def __init__(self, sub_topic1: str, sub_topic2: str, sub_topic3: str, safety_topic: str, dist_min_topic: str, dist_max_topic: str, dist_avg_topic: str, dist_wtd_topic: str, vel_min_topic: str, vel_max_topic: str, vel_avg_topic: str, vel_wtd_topic: str, gsi_avg_topic: str, gsi_dist_topic: str, gsi_vel_topic: str, gsi_dist_wtd_topic: str, gsi_vel_wtd_topic: str, d_factor_topic: str, v_factor_topic: str, dist_arr_topic: str, vel_arr_topic: str, conf_arr_topic: str, overall_gsi_topic: str, desired_keypoints: str, conf_thr: str, dmax: str, dmin: str, vmax: str, amax: str, dwt: str,vwt:str , rhod: str, rhov:str, queue_size: int = 10):
+	def __init__(self, sub_topic1: str, sub_topic2: str, sub_topic3: str, safety_topic: str, dist_min_topic: str, dist_max_topic: str, dist_avg_topic: str, dist_wtd_topic: str, vel_min_topic: str, vel_max_topic: str, vel_avg_topic: str, vel_wtd_topic: str, gsi_avg_topic: str, gsi_dist_topic: str, gsi_vel_topic: str, gsi_dist_wtd_topic: str, gsi_vel_wtd_topic: str, dist_arr_topic: str, vel_arr_topic: str, conf_arr_topic: str, overall_gsi_topic: str, desired_keypoints: str, conf_thr: str, dmax: str, dmin: str, vmax: str, amax: str, rho: str, queue_size: int = 10):
 		
 		self.desired_keypoints = list(desired_keypoints.split(","))
 		self.conf_thr = float(conf_thr)
@@ -56,10 +38,8 @@ class FRESHR_GSI:
 		self.bounding_box = Float64MultiArray()
 		self.Likert_safety = ByteMultiArray()
 		self.time_prev = 0
-		self.dwt = float(dwt)
-		self.vwt = float(vwt)
-		self.rhod = float(rhod)
-		self.rhov = float(rhov)
+		self.rho = float(rho)
+
 		
 		#self.safety=np.array(self.safety)
 		self.d_data = Float64MultiArray()
@@ -78,20 +58,14 @@ class FRESHR_GSI:
 		self.frame_vel_avg_data = Float64MultiArray()
 		self.frame_vel_wtd_data = Float64MultiArray()
 		
-		#FOR CASE 1 ONLY
-		
-		#self.n_human_subscriber = rospy.Subscriber("/number_of_humans", Float64, self.n_humans)
-		#self.velocity_subscriber = rospy.Subscriber('/velocity', Float64MultiArray, self.transform_callback2)
-		#self.confidence_subscriber = rospy.Subscriber('/confidence', Float64MultiArray, self.transform_callback3)
-		#self.distance_subscriber = rospy.Subscriber('/distance', Float64MultiArray, self.transform_callback1)
+		#Subscribing FOR CASE 1 ONLY (Task Robot Viewpoint)
 		self.all_data_subscriber = rospy.Subscriber('/dist_vel_conf_data', Float64MultiArray, self.transform_callback1)
-		#self.box_subscriber = rospy.Subscriber('/bounding_box', Float64MultiArray, self.video_callback1)
-		#self.image_subscriber = rospy.Subscriber('/camera/image_decompressed', Image, self.color_image)
 		
-		
-		#FOR CASE 2 ONLY
-		
+		# Subscribing FOR CASE 2 ONLY (Observer Viewpoint)
 		#self.all_data_subscriber = rospy.Subscriber('/dist_vel_btw', Float64MultiArray, self.transform_callback4)
+		
+		
+		# Publishers
 		
 		self.pub = rospy.Publisher(safety_topic, String, queue_size = queue_size)
 		self.pub31 = rospy.Publisher(gsi_avg_topic, Float64MultiArray, queue_size = queue_size)
@@ -107,24 +81,13 @@ class FRESHR_GSI:
 		self.pub22 = rospy.Publisher(vel_max_topic, Float64MultiArray, queue_size = queue_size)
 		self.pub23 = rospy.Publisher(vel_avg_topic, Float64MultiArray, queue_size = queue_size)
 		self.pub24 = rospy.Publisher(vel_wtd_topic, Float64MultiArray, queue_size = queue_size)
-		self.vel_fact = rospy.Publisher(v_factor_topic, Float64MultiArray, queue_size = queue_size)
-		self.dist_fact = rospy.Publisher(d_factor_topic, Float64MultiArray, queue_size = queue_size)
 		self.dist_arr = rospy.Publisher(dist_arr_topic, Float64MultiArray, queue_size = queue_size)
 		self.vel_arr = rospy.Publisher(vel_arr_topic, Float64MultiArray, queue_size = queue_size)
 		self.conf_arr = rospy.Publisher(conf_arr_topic, Float64MultiArray, queue_size = queue_size)
 		self.overall_gsi =  rospy.Publisher(overall_gsi_topic, Float64, queue_size = queue_size)
 
 
-	def n_humans(self, data):
-		self.human_num = data.data
-		
-	def transform_callback3(self, data):		
-		self.conf = data.data
-		self.index = [ int(i) for i in self.desired_keypoints]
-    
-	def transform_callback2(self, data):
-		self.velocity = data.data
-	
+	'''
 	def transform_callback4(self, data):
 
 		ex = 0.00000000000000000000000000000000000001
@@ -211,10 +174,10 @@ class FRESHR_GSI:
 		#print(self.safety)
 		#print(type(self.safety))
 		print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-		print('current distance :',distance,'m distance factor :',self.d)
+		print('current distance :',distance)	#,'m distance factor :',self.d)
 		#print('confidence :',self.frame_conf)
-		print('current velocity :',velocity,'m/s velocity factor :',self.v)
-		print('GSI :',self.os_avg)
+		print('current velocity :',velocity)	#,'m/s velocity factor :',self.v)
+		print('GSI :',gsi_o)
 		#print('avg vs wtd :',self.frame_dist_avg,self.frame_dist_wtd)
 		print(self.safety)
 		print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -246,29 +209,23 @@ class FRESHR_GSI:
 		#self.overall_gsi.publish((human_num))
     
 		
-	
+	'''
 	def transform_callback1(self, data):
 
 		self.index = [ int(i) for i in self.desired_keypoints]
-		print("data  -->",data.data)
+		alpha = 0.01
 		human_num = int(data.data[-1:][0])
-		print("human  -->",human_num)
 		theta = data.data[-(human_num+1):len(data.data)-1]
-		print("theta  -->",theta)
 		yolo_data = data.data[:len(data.data)-(human_num+1)]
-		print("yolo  -->",yolo_data)
 		norm = [0 for x in range(int(human_num))]
 		ex = 0.00000000000000000000000000000000000001
 		all_data_arr = (np.array_split(yolo_data, 3))
-		print(len(all_data_arr[0]),len(all_data_arr[1]),len(all_data_arr[2]))
 		
 		if human_num > 0 :
 			distance_array = (np.array_split(all_data_arr[0], human_num))
 			velocity_array = (np.array_split(all_data_arr[1], human_num))
 			confidence_array = (np.array_split(all_data_arr[2], human_num))
-			#angle_array = (np.array_split(all_data_arr[3], human_num))
-			#print(confidence_array)
-			#print(human_num)
+
 			new_index = [[] for x in range(int(human_num))]
 			dd1 = [[] for x in range(int(human_num))]
 			vv1 = [[] for x in range(int(human_num))]
@@ -283,10 +240,9 @@ class FRESHR_GSI:
 			vv3 = [[] for x in range(int(human_num))]
 			cc3 = [[] for x in range(int(human_num))]
 			keep_index2 = [[] for x in range(int(human_num))]
-			#print(self.index)	
+
 			for run in range(int(human_num)):
 				for li in self.index:
-					#print(li)
 					if float(confidence_array[run][li]) > self.conf_thr:
 						new_index[run].append(li)
 				
@@ -314,7 +270,6 @@ class FRESHR_GSI:
 			self.frame_distance = dd2[:]
 			self.frame_velocity = vv2[:]
 			self.frame_conf = cc2[:]
-			#print(self.frame_distance,self.frame_velocity)
 			
 			self.frame_dist_wtd = [float(0) for x in range(int(human_num))]
 			self.frame_dist_min = [float(0) for x in range(int(human_num))]
@@ -335,21 +290,17 @@ class FRESHR_GSI:
 
 			
 			for nh in range(int(human_num)):
-				#print(nh)
 				norm[nh] = sum(self.frame_conf[nh])
-				#print("norm :",norm)
 			
 				if len(self.frame_distance[nh]) != 0 :
 					self.frame_dist_avg[nh] = sum(self.frame_distance[nh])/len(self.frame_distance[nh])
 				else :
 					self.frame_dist_avg[nh] = float('nan')
-					self.d[nh] = float('nan')
 				
 				if len(self.frame_velocity[nh]) != 0 :
 					self.frame_vel_avg[nh] = sum(self.frame_velocity[nh])/len(self.frame_velocity[nh])
 				else:
 					self.frame_vel_avg[nh] = float('nan')
-					self.v[nh] = float('nan')
 			
 				if norm[nh] != 0:
 					for i in range(len(self.frame_distance[nh])):
@@ -360,56 +311,16 @@ class FRESHR_GSI:
 				else:
 					self.frame_dist_wtd[nh] = float('nan')
 					self.frame_vel_wtd[nh] = float('nan')
-				
-				for i in range(len(self.frame_distance[nh])):
-					if norm[nh] != 0:
-						self.d[nh] = self.d[nh] +(self.frame_conf[nh][i]/norm[nh])*((self.frame_distance[nh][i]-self.dmin)/(self.dmax-self.dmin))
-					else:
-						self.d[nh] = float('nan')
-				if self.d[nh]>1 :
-					self.d[nh] = 1
-				elif self.d[nh]<0 :
-					self.d[nh] = 0
 
 				time_now = rospy.get_rostime().to_sec()
-
-				for i in range(len(self.frame_velocity[nh])):
-					if norm[nh] == 0.0:
-						self.v[nh] = float('nan')
-					elif math.isnan(float(self.frame_distance[nh][i])) == False or math.isnan(float(self.frame_velocity[nh][i])) == False:
-						allowedv = (self.frame_distance[nh][i])/self.rt
-						self.v[nh] = self.v[nh] + (self.frame_conf[nh][i]/(norm[nh]))*((allowedv - self.frame_velocity[nh][i])/(allowedv+ex))
 
 				self.frame_dist_min[nh] = min(self.frame_distance[nh], default=float('nan'))
 				self.frame_dist_max[nh] = max(self.frame_distance[nh], default=float('nan'))
 				self.frame_vel_min[nh] = min(self.frame_velocity[nh], default=float('nan'))
 				self.frame_vel_max[nh] = max(self.frame_velocity[nh], default=float('nan'))
-
-				if self.v[nh]<0:
-					self.v[nh] = 0
-				elif self.v[nh]>1:
-					self.v[nh] = 1
-
-				'''
-				combined_dv = [self.d,self.v]
-				print(self.d)
-				print(self.v)
-				print(self.os_avg)
 				
-				'''		
-				if math.isnan(float(self.d[nh])) == True :
-					self.os_avg[nh] = math.pow(self.v[nh],self.rhov)
-				
-				elif math.isnan(float(self.v[nh])) == True :
-					self.os_avg[nh] = math.pow(self.d[nh],self.rhod)
-					
-				elif math.isnan(float(self.d[nh])) == True  and math.isnan(float(self.v[nh])) == True :
-					self.os_avg[nh] = float('nan')
-				
-				else:
-					self.os_avg[nh] = float(((self.dwt)*math.pow(self.d[nh],self.rhod))+((self.vwt)*math.pow(self.v[nh],self.rhov)))
-
-
+				self.os_avg[nh] = ((self.frame_dist_wtd[nh] - (np.sign(self.frame_vel_wtd[nh])*(self.frame_vel_wtd[nh]**2/2*self.amax) + self.dmin ))/(self.dmax - self.dmin))**self.rho	#
+				print(self.frame_dist_wtd[nh], np.sign(self.frame_vel_wtd[nh]), (self.frame_vel_wtd[nh]**2/2*self.amax), self.dmin, (self.dmax - self.dmin)	)
 
 				if len(self.frame_distance[nh]) == 0 or math.isnan(float(self.os_avg[nh])) == True:
 					self.safety[nh] = "Nothing Detected or System Unavailable"
@@ -431,20 +342,26 @@ class FRESHR_GSI:
 			
 			gsi_ang = [float('nan') for i in range(int(human_num))]
 			for i in range(int(human_num)):
-				gsi_ang[i] = ((1-self.os_avg[i])*math.cos((theta[i]*22)/(180*7)))
+				gsi_ang[i] = 1 - ((1-self.os_avg[i])*math.cos((theta[i]*22)/(180*7)))
 			
+
+			print(np.sign(self.frame_vel_wtd[nh])	)
+			print("gsi_ang ",gsi_ang)
+			newgsiangles = [x for x in gsi_ang if not math.isnan(x)]
+			print('newgsiangles ',newgsiangles)
+			if len(newgsiangles) == 0:
+				return np.nan
+			print("sum ", np.sum(np.exp(-np.array(newgsiangles) / alpha))	)
+			print("log ", np.log((1 / len(newgsiangles)) * np.sum(np.exp(-np.array(newgsiangles) / alpha)))	)
+			print("length ",len(newgsiangles))
 			
-			gsi_o = 1-max(gsi_ang)
-			if math.isnan(gsi_o) == True:
-				gsi_o = 1.0
-			
+			gsi_o = -alpha * np.log((1 / len(newgsiangles)) * np.sum(np.exp(-np.array(newgsiangles) / alpha)))	
+			collective_gsi = np.clip(gsi_o, 0, 1)
 			
 			
 			self.safety=np.array(self.safety)
-			self.d_data.data = self.d
-			self.v_data.data = self.v
 			self.os_avg_data.data = self.os_avg[:]
-			self.os_dist_data.data = self.os_dist
+			self.os_dist_data.data = self.gsi_ang[:]
 			self.os_vel_data.data = self.os_vel
 			self.os_dist_wtd_data.data = self.os_dist_wtd
 			self.os_vel_wtd_data.data = self.os_vel_wtd
@@ -459,14 +376,12 @@ class FRESHR_GSI:
 			self.frame_conf=np.array(self.frame_conf, dtype=object)
 			self.frame_distance=np.array(self.frame_velocity, dtype=object)
 			self.frame_velocity=np.array(self.frame_distance, dtype=object)
-			#print(self.safety)
-			#print(type(self.safety))
+
 			print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-			print('current distance :',self.frame_dist_avg,'m distance factor :',self.d)
-			print('confidence :',self.frame_conf)
-			print('current velocity :',self.frame_vel_avg,'m/s velocity factor :',self.v)
-			print('GSI :',self.os_avg)
-			#print('avg vs wtd :',self.frame_dist_avg,self.frame_dist_wtd)
+			print('current distance :',self.frame_dist_wtd)#,'m distance factor :',self.d)
+			print('current velocity :',self.frame_vel_wtd)#,'m/s velocity factor :',self.v)
+			print('GSI with bearing :',gsi_ang)
+			print('Collective GSI :',collective_gsi)
 			print(self.safety)
 			print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 			
@@ -492,7 +407,7 @@ class FRESHR_GSI:
 			#self.dist_fact.publish((self.d_data))
 			#self.vel_fact.publish((self.v_data))
 			self.pub31.publish((self.os_avg_data))
-			#self.pub32.publish((self.os_dist_data))
+			self.pub32.publish((self.os_dist_data))
 			#self.pub33.publish((self.os_vel_data))
 			#self.pub34.publish((self.os_dist_wtd_data))
 			#self.pub35.publish((self.os_vel_wtd_data))
@@ -504,7 +419,7 @@ class FRESHR_GSI:
 			#self.pub22.publish((self.frame_vel_max_data))
 			#self.pub23.publish((self.frame_vel_avg_data))
 			#self.pub24.publish((self.frame_vel_wtd_data))
-			self.overall_gsi.publish(gsi_o)
+			self.overall_gsi.publish(collective_gsi)
     
 		else:
 			print("********** NO HUMAN DETECTED **********")
@@ -535,8 +450,6 @@ if __name__ == "__main__":
     gsi_vel_topic = rospy.get_param(ns + "gsi_vel_topic")
     gsi_dist_wtd_topic = rospy.get_param(ns + "gsi_dist_wtd_topic")
     gsi_vel_wtd_topic = rospy.get_param(ns + "gsi_vel_wtd_topic")
-    d_factor_topic = rospy.get_param(ns + "d_factor_topic")
-    v_factor_topic = rospy.get_param(ns + "v_factor_topic")
     dist_arr_topic = rospy.get_param(ns + "dist_arr_topic")
     vel_arr_topic = rospy.get_param(ns + "vel_arr_topic")
     conf_arr_topic = rospy.get_param(ns + "conf_arr_topic")
@@ -547,10 +460,7 @@ if __name__ == "__main__":
     dmin = rospy.get_param(ns + "dmin")
     vmax = rospy.get_param(ns + "vmax")
     amax = rospy.get_param(ns + "amax")
-    dwt = rospy.get_param(ns + "dwt")
-    vwt = rospy.get_param(ns + "vwt")
-    rhod = rospy.get_param(ns + "rhod")
-    rhov = rospy.get_param(ns + "rhov")
+    rho = rospy.get_param(ns + "rho")
     queue_size = rospy.get_param(ns + "queue_size")
 
 
@@ -572,8 +482,6 @@ if __name__ == "__main__":
         gsi_vel_topic=gsi_vel_topic,
         gsi_dist_wtd_topic=gsi_dist_wtd_topic,
         gsi_vel_wtd_topic=gsi_vel_wtd_topic,
-        d_factor_topic=d_factor_topic,
-        v_factor_topic=v_factor_topic,
         dist_arr_topic=dist_arr_topic,
         vel_arr_topic=vel_arr_topic,
         conf_arr_topic=conf_arr_topic,
@@ -584,10 +492,7 @@ if __name__ == "__main__":
         dmin=dmin,
         vmax=vmax,
         amax=amax,
-        dwt=dwt,
-        vwt=vwt,
-        rhod=rhod,
-        rhov=rhov,
+        rho=rho,
         queue_size = queue_size
     )
 
