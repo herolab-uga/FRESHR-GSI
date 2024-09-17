@@ -3,7 +3,7 @@ We propose a new framework (FRESHR) and safety scale (GSI) for evaluating the ph
 
 Below is the architecture of our framework.
 
-![Alt text](/images/framework_architecture.png?raw=true)
+![Alt text](/images/GSI_framework_architecture.png?raw=true)
 
 
 ## Pre-requisite
