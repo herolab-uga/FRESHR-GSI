@@ -102,6 +102,8 @@ Additionally, this node outputs several topics:
     `/velocity`: Velocity of each keypoint.
     `/confidence`: Confidence levels for each detected keypoint.
     `/human_detection`: This topic reflects the total count of humans detected; if no humans are detected, it publishes `-1`.
+    `/degree_angle_of_humans`: This topic reflects the bearing of humans detected in degrees.
+    `/azimuth_angle_of_humans`: This topic reflects the bearing of humans detected in radians.
 
 It also leverages the camera_info topic to utilize the camera's intrinsic values for calculating and publishing the bearing of detected humans within the camera's field of view. These bearings are published as angles in radians to **/azimuth_angle_of_humans** and in degrees to **/degree_angle_of_humans**.
 
@@ -129,17 +131,16 @@ This node subscribes to metrics from the estimator (**/distance, /velocity, /con
         /freshr/velocity_wtd: Weighted velocity, with weights derived from keypoint confidence.
 
     Safety and Comfort Factors:
-        /freshr/distance_factor: Publishes the distance factor using weighted distance.
-        /freshr/velocity_factor: Publishes the velocity factor using weighted velocity.
+        /freshr/gsi: Publishes the safety value of each detected human.
+        /freshr/angular_gsi: Publishes the safety value of each human detetced after incorporating the bearings of those humans.
 
     GSI Metrics:
-        Various GSI topics publish values based on distance and velocity, employing different weights to represent safety indices accurately. These include specific evaluations like /freshr/gsi_dist for distance, /freshr/gsi_vel for velocity, and combined metrics with varied weighting schemes.
 
     Readable Safety Evaluation:
         /freshr/safety: Converts GSI values into a human-readable format using a 7-point Likert scale. Reports "Nothing Detected or System Unavailable" if no humans are detected.
 
     Directional Safety Index:
-        /freshr/overall_gsi: Integrates GSI averages with azimuth angles to calculate a directional safety index, prioritizing the safety implications of the robot's movements toward humans.
+        /freshr/overall_gsi: Publishes the overall safety value (a directional safety index) using the line of robot's navigational path, prioritizing the safety of humans who are at higher risk.
 
 This framework underscores the importance of adaptive and nuanced safety assessments in robotics, paving the way for safer human-robot ecosystems.
 
