@@ -5,6 +5,12 @@ Below is the architecture of our framework.
 
 ![Alt text](/images/GSI_framework_architecture.png?raw=true)
 
+# Paper
+If you use this work, please cite our paper:
+Pandey, P., Parasuraman, R. and Doshi, P., 2025. FRESHR-GSI: A Generalized Safety Model and Evaluation Framework for Mobile Robots in Multi-Human Environments. arXiv preprint arXiv:2501.03467.
+
+ 	
+https://doi.org/10.48550/arXiv.2501.03467
 
 ## Pre-requisite
 This package is tested on [ROS (noetic)](http://wiki.ros.org/noetic/Installation/Ubuntu). You can use this link to install ROS Noetic into your system [http://wiki.ros.org/noetic/Installation/Ubuntu]. We use [Husky](http://wiki.ros.org/Robots/Husky) in the gazebo to do the experiments. To install Husky packages, follow the instructions using this link[http://wiki.ros.org/Robots/Husky]. Finally, we use [Yolov7](https://github.com/WongKinYiu/yolov7) to detect and localize the pixel locations of the humans and robots (objects) from RGB images. For a human, it also provides the skeleton’s keypoint locations. These are then correlated with the corresponding depth values from depth images. Yolov7 also provides confidence scores for each detection, which are valuable when integrating different detections of the same factor, such as different skeletal keypoint distances. We have used [lukazso](https://github.com/lukazso/yolov7-ros.git) GitHub repository and made some minor modifications to extract the pixel locations with confidence. You can follow the instructions provided in this link [https://github.com/lukazso/yolov7-ros.git] to install the yolov7 package in your ROS workspace.
